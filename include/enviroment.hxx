@@ -9,21 +9,22 @@ class enviroment final {
     public:
         enviroment(const enviroment&) = delete;
         enviroment(enviroment&&) = delete;
+        ~enviroment(void) noexcept = default;
 
     public:
         static auto get_instance(void) noexcept -> enviroment&;
 
-        auto load(std::string_view program) -> void;
-        auto unload(void) noexcept -> void;
+        auto init(std::string_view program) -> void;
+        auto deinit(void) noexcept -> void;
 
         template<class Self>
         auto& camera(this Self&& self) noexcept {
-            return self._camera;
+            return std::forward_like<Self>(self._camera);
         }
 
         template<class Self>
         auto font(this Self&& self) noexcept {
-            return self._font;
+            return std::forward_like<Self>(self._font);
         }
 
     private:

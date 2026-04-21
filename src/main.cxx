@@ -1,10 +1,13 @@
 #include <cmath>
 #include <format>
+#include <print>
 #include <ranges>
 
 #include "enviroment.hxx"
+#include "node.hxx"
 #include "raylib.h"
 #include "raymath.h"
+#include "uuid.hxx"
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -63,7 +66,7 @@ auto main([[maybe_unused]] int argc, char** argv) -> int {
             (::GetMonitorHeight(currentMonitor) - initialHeight) * 0.5f);
 
     auto& env = enviroment::get_instance();
-    env.load(*argv);
+    env.init(*argv);
 
     auto& camera = env.camera();
     camera.zoom = 1.0f;
@@ -78,17 +81,6 @@ auto main([[maybe_unused]] int argc, char** argv) -> int {
                 render_grid();
             }
             ::EndMode2D();
-
-            const auto& font = env.font();
-            const std::string text {
-                std::format(
-                        "gridSize: {}\n"
-                        "camera.zoom: {:.2f}\n",
-                        env.gridSize, camera.zoom)
-            };
-
-            ::DrawTextEx(font, text.c_str(), { 10, 10 }, env.fontSize, 1,
-                    ::BLACK);
 
             // update the camera position
             if (::IsMouseButtonDown(::MOUSE_BUTTON_LEFT)) {
@@ -113,6 +105,6 @@ auto main([[maybe_unused]] int argc, char** argv) -> int {
         ::EndDrawing();
     };
 
-    env.unload();
+    env.deinit();
     return 0;
 }
