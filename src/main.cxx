@@ -20,7 +20,7 @@ constexpr auto nearestMultiplier(T a, T b) -> T {
 
 auto render_grid(void) noexcept -> void {
     const auto& env = enviroment::get_instance();
-    const auto& camera = env.get_camera();
+    const auto& camera = env.camera();
 
     const auto topLeft = ::GetScreenToWorld2D({ 0, 0 }, camera);
     const auto bottomRight = ::GetScreenToWorld2D({
@@ -51,12 +51,11 @@ auto render_grid(void) noexcept -> void {
     }
 }
 
-auto main(void) -> int {
+auto main([[maybe_unused]] int argc, char** argv) -> int {
     ::SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT
             | FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     ::InitWindow(initialWidth, initialHeight, "House plan maker");
     ::SetTargetFPS(60);
-    ::SetExitKey(KEY_Q);
 
     const auto currentMonitor = ::GetCurrentMonitor();
     ::SetWindowPosition(
@@ -64,7 +63,9 @@ auto main(void) -> int {
             (::GetMonitorHeight(currentMonitor) - initialHeight) * 0.5f);
 
     auto& env = enviroment::get_instance();
-    auto& camera = env.get_camera();
+    env.load(*argv);
+
+    auto& camera = env.camera();
     camera.zoom = 1.0f;
 
     while (!::WindowShouldClose()) {
@@ -77,6 +78,17 @@ auto main(void) -> int {
                 render_grid();
             }
             ::EndMode2D();
+
+            const auto& font = env.font();
+            const std::string text {
+                std::format(
+                        "gridSize: {}\n"
+                        "camera.zoom: {:.2f}\n",
+                        env.gridSize, camera.zoom)
+            };
+
+            ::DrawTextEx(font, text.c_str(), { 10, 10 }, env.fontSize, 1,
+                    ::BLACK);
 
             // update the camera position
             if (::IsMouseButtonDown(::MOUSE_BUTTON_LEFT)) {
@@ -101,5 +113,6 @@ auto main(void) -> int {
         ::EndDrawing();
     };
 
+    env.unload();
     return 0;
 }
