@@ -5,22 +5,38 @@
 
 class node final {
     public:
-        node(void) noexcept;
-        node(std::string_view title, std::string_view description = {}) noexcept;
-        ~node(void) noexcept = default;
+        node(void)
+            noexcept;
+        node(std::string_view title, std::string_view description, ::Vector2 pos)
+            noexcept;
+        ~node(void)
+            noexcept = default;
 
-        template<class Self>
-        auto& title(this Self&& self) noexcept {
-            return std::forward_like<Self>(self._title);
-        }
+        template<class Self> [[nodiscard]]
+        auto& title(this Self&& self)
+            noexcept {
+                return std::forward_like<Self>(self._title);
+            }
 
     public:
-        auto update(void) noexcept -> void;
-        auto render(void) const noexcept -> void;
+        auto update(void)
+            noexcept -> void;
+        auto render(void) const
+            noexcept -> void;
 
     private:
-        std::string _title {};
-        std::string _description {};
+        static constexpr float width { 400 };
+        static constexpr float padding { 10 };
+
+        struct node_text {
+            std::string text {};
+            std::string wrapped {};
+        };
+
+    private:
+        node_text _title {};
+        node_text _description {};
+        ::Vector2 _pos {};
 
         // TODO: list of tasks
 };

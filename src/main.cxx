@@ -15,49 +15,44 @@ namespace views = std::views;
 static constexpr auto initialWidth  = 1920;
 static constexpr auto initialHeight = 1080;
 
-template<std::integral T>
-constexpr auto nearestMultiplier(T a, T b) -> T {
-    if (a == 0) return 0;
-    return a + (b - (a % b));
-}
+auto render_grid(void)
+        noexcept -> void {
+        const auto& env = enviroment::get_instance();
+        const auto& camera = env.camera();
 
-auto render_grid(void) noexcept -> void {
-    const auto& env = enviroment::get_instance();
-    const auto& camera = env.camera();
+        const auto topLeft = ::GetScreenToWorld2D({ 0, 0 }, camera);
+        const auto bottomRight = ::GetScreenToWorld2D({
+                    (float)::GetScreenWidth(),
+                    (float)::GetScreenHeight()
+                }, camera);
 
-    const auto topLeft = ::GetScreenToWorld2D({ 0, 0 }, camera);
-    const auto bottomRight = ::GetScreenToWorld2D({
-                (float)::GetScreenWidth(),
-                (float)::GetScreenHeight()
-            }, camera);
+        const auto gridStart = ::Vector2 {
+            std::floor(topLeft.x / env.gridSize) * env.gridSize,
+            std::floor(topLeft.y / env.gridSize) * env.gridSize,
+        };
 
-    const auto gridStart = ::Vector2 {
-        std::floor(topLeft.x / env.gridSize) * env.gridSize,
-        std::floor(topLeft.y / env.gridSize) * env.gridSize,
-    };
+        const auto gridEnd = ::Vector2 {
+            std::ceil(bottomRight.x / env.gridSize) * env.gridSize,
+            std::ceil(bottomRight.y / env.gridSize) * env.gridSize,
+        };
 
-    const auto gridEnd = ::Vector2 {
-        std::ceil(bottomRight.x / env.gridSize) * env.gridSize,
-        std::ceil(bottomRight.y / env.gridSize) * env.gridSize,
-    };
+        for (float y : views::iota(0)
+                | views::take((int)((gridEnd.y - gridStart.y) / env.gridSize) + 1)) {
+            const auto yPos = gridStart.y + (y * env.gridSize);
+            ::DrawLine(gridStart.x, yPos, gridEnd.x, yPos, ::LIGHTGRAY);
+        }
 
-    for (float y : views::iota(0)
-            | views::take((int)((gridEnd.y - gridStart.y) / env.gridSize) + 1)) {
-        const auto yPos = gridStart.y + (y * env.gridSize);
-        ::DrawLine(gridStart.x, yPos, gridEnd.x, yPos, ::LIGHTGRAY);
+        for (float x : views::iota(0)
+                | views::take((int)((gridEnd.x - gridStart.x) / env.gridSize) + 1)) {
+            const auto xPos = gridStart.x + (x * env.gridSize);
+            ::DrawLine(xPos, gridStart.y, xPos, gridEnd.y, ::LIGHTGRAY);
+        }
     }
-
-    for (float x : views::iota(0)
-            | views::take((int)((gridEnd.x - gridStart.x) / env.gridSize) + 1)) {
-        const auto xPos = gridStart.x + (x * env.gridSize);
-        ::DrawLine(xPos, gridStart.y, xPos, gridEnd.y, ::LIGHTGRAY);
-    }
-}
 
 auto main([[maybe_unused]] int argc, char** argv) -> int {
     ::SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT
             | FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
-    ::InitWindow(initialWidth, initialHeight, "House plan maker");
+    ::InitWindow(initialWidth, initialHeight, "Nodes");
     ::SetTargetFPS(60);
 
     const auto currentMonitor = ::GetCurrentMonitor();
@@ -71,6 +66,8 @@ auto main([[maybe_unused]] int argc, char** argv) -> int {
     auto& camera = env.camera();
     camera.zoom = 1.0f;
 
+    const node testNode("this is a title", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec commodo dui. Mauris eu risus et libero pulvinar facilisis. In commodo imperdiet mauris, vel hendrerit dolor ultricies quis. Vivamus varius tellus sed libero fringilla ultrices. Maecenas at ipsum sit amet mauris finibus accumsan. In congue consectetur dui. Nam id fermentum orci.", { 10, 10 });
+
     while (!::WindowShouldClose()) {
         ::BeginDrawing();
         {
@@ -79,6 +76,7 @@ auto main([[maybe_unused]] int argc, char** argv) -> int {
             ::BeginMode2D(camera);
             {
                 render_grid();
+                testNode.render();
             }
             ::EndMode2D();
 
@@ -97,9 +95,13 @@ auto main([[maybe_unused]] int argc, char** argv) -> int {
                 camera.offset = ::GetMousePosition();
                 camera.target = mouseWorldPosition;
 
+                // TODO: reload font
+                // TODO: draw text after EndMode2D
+                
                 const auto scale = wheel * 0.25f;
                 camera.zoom = std::clamp(
-                        ::expf(::logf(camera.zoom) + scale), 0.05f, 64.0f);
+                        ::expf(::logf(camera.zoom) + scale),
+                        0.05f, 64.0f);
             }
         }
         ::EndDrawing();
