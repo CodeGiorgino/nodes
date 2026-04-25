@@ -32,20 +32,18 @@ node::node(std::string_view uuid, std::string_view title,
         };
     }
 
-auto node::update(void)
-    noexcept -> void {
-        // TODO: update node
-    }
+auto node::update(void) noexcept -> void {
+    // TODO: update node
+}
 
-auto node::render(void)
-    const noexcept -> void {
-        const auto titleSize = gui::draw_text_rec(_title.wrapped, _pos, width,
-                padding, ::ColorAlpha(::BLUE, 0.2f));
+auto node::render(void) const noexcept -> void {
+    const auto titleSize = gui::draw_text_rec(_title.wrapped, _pos, width,
+            padding, ::ColorAlpha(::BLUE, 0.2f));
 
-        const ::Vector2 descriptionPos {
-            _pos.x,
-            _pos.y + titleSize.y
-        };
+    const ::Vector2 descriptionPos {
+        _pos.x,
+        _pos.y + titleSize.y
+    };
 
-        gui::draw_text_rec(_description.wrapped, descriptionPos, width);
-    }
+    gui::draw_text_rec(_description.wrapped, descriptionPos, width);
+}

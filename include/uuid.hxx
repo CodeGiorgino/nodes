@@ -8,10 +8,6 @@ namespace uuid {
     static std::uniform_int_distribution<> distribution(0, 15);
     static std::uniform_int_distribution<> distribution2(8, 11);
 
-    [[nodiscard]]
-    auto generate_v4(void)
-        noexcept -> std::string;
-    [[nodiscard]]
-    auto test_v4(std::string_view text)
-        noexcept -> bool;
+    [[nodiscard]] auto generate_v4(void) noexcept -> std::string;
+    [[nodiscard]] auto test_v4(std::string_view text) noexcept -> bool;
 }

@@ -5,8 +5,7 @@
 
 namespace uuid {
     // Source - https://stackoverflow.com/a/60198074
-    auto generate_v4(void)
-        noexcept -> std::string {
+    auto generate_v4(void) noexcept -> std::string {
         std::stringstream ss;
         ss << std::hex;
 
@@ -34,23 +33,20 @@ namespace uuid {
         return ss.str();
     }
 
-    auto test_v4(std::string_view text)
-        noexcept -> bool {
-            if (text.empty())
-                return false;
+    auto test_v4(std::string_view text) noexcept -> bool {
+        if (text.empty())
+            return false;
 
-            // Source - https://stackoverflow.com/a/38191104
-            // ab1b-d5bd8b78a485
-            static const std::regex re (
-                "^[0-9A-F]{8}"
-                "-[0-9A-F]{4}"
-                "-[4][0-9A-F]{3}"
-                "-[89AB][0-9A-F]{3}"
-                "-[0-9A-F]{12}$",
-                std::regex::icase
-            );
+        // Source - https://stackoverflow.com/a/38191104
+        static const std::regex re (
+            "^[0-9A-F]{8}"
+            "-[0-9A-F]{4}"
+            "-[4][0-9A-F]{3}"
+            "-[89AB][0-9A-F]{3}"
+            "-[0-9A-F]{12}$",
+            std::regex::icase);
 
-            const std::string textStr { text };
-            return std::regex_match(textStr, re);
-        }
+        const std::string textStr { text };
+        return std::regex_match(textStr, re);
+    }
 } // namespace uuid
