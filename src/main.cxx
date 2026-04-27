@@ -49,8 +49,9 @@ auto render_grid(void) noexcept -> void {
 }
 
 auto main([[maybe_unused]] int argc, char** argv) -> int {
-    ::SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT
-            | FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
+    ::SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
+    // ::SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+
     ::InitWindow(initialWidth, initialHeight, "Nodes");
     ::SetTargetFPS(60);
 

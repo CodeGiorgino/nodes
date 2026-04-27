@@ -42,21 +42,6 @@ namespace gui {
             return ret;
         }
 
-    auto draw_text_rec(std::string_view text, ::Vector2 recPos, float width,
-            float padding, ::Color color, ::Color tint) noexcept -> void {
-        if (text.empty())
-            return;
-
-        const auto textSize = gui::measure_text(text);
-        const ::Vector2 recSize {
-            width,
-            textSize.y + padding * 2,
-        };
-
-        ::DrawRectangleV(recPos, recSize, color);
-        ::DrawRectangleLines(recPos.x, recPos.y, recSize.x, recSize.y, tint);
-    }
-
     auto draw_text(std::string_view text, ::Vector2 pos, ::Color tint,
             bool scaled) noexcept -> void {
             if (text.empty())

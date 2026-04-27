@@ -38,36 +38,49 @@ auto node::update(void) noexcept -> void {
 }
 
 auto node::render(void) const noexcept -> void {
-    gui::draw_text_rec(_title.wrapped, _pos, width, padding,
-            ::ColorAlpha(::BLUE, 0.2f));
+    const auto& env = enviroment::get_instance();
+    const auto& camera = env.camera();
 
-    const auto titleSize = gui::measure_text(_title.wrapped);
-    const ::Vector2 recPos {
-        _pos.x,
-        _pos.y + titleSize.y + padding * 2,
-    };
+    auto recPos = _pos;
 
-    gui::draw_text_rec(_description.wrapped, recPos, width);
+    { // draw title
+        const auto textSize = gui::measure_text(_title.wrapped);
+        const ::Vector2 recSize {
+            width + padding / camera.zoom,
+            textSize.y / camera.zoom + padding * 2.0f,
+        };
+
+        ::DrawRectangleV(recPos, recSize, ::ColorAlpha(::BLUE, 0.2));
+        ::DrawRectangleLines(recPos.x, recPos.y, recSize.x, recSize.y, ::BLACK);
+
+        recPos.y += recSize.y;
+    }
+
+    { // draw description
+        const auto textSize = gui::measure_text(_description.wrapped);
+        const ::Vector2 recSize {
+            width + padding / camera.zoom,
+            textSize.y / camera.zoom + padding * 2.0f,
+        };
+
+        ::DrawRectangleV(recPos, recSize, ::ColorAlpha(::LIGHTGRAY, 0.2));
+        ::DrawRectangleLines(recPos.x, recPos.y, recSize.x, recSize.y, ::BLACK);
+    }
 }
 
 auto node::render_text(void) const noexcept -> void {
     const auto& env = enviroment::get_instance();
     const auto& camera = env.camera();
 
-    auto textPos = ::GetWorldToScreen2D({
-            _pos.x + padding * camera.zoom,
-            _pos.y + padding * camera.zoom,
-        }, camera);
+    ::Vector2 textPos {
+        _pos.x + padding,
+        _pos.y + padding,
+    };
 
-    gui::draw_text(_title.wrapped, textPos);
+    gui::draw_text(_title.wrapped, ::GetWorldToScreen2D(textPos, camera));
 
     const auto titleSize = gui::measure_text(_title.wrapped);
+    textPos.y += titleSize.y / camera.zoom + padding * 2.0f;
 
-    textPos = ::GetWorldToScreen2D({
-            _pos.x + padding * camera.zoom,
-            _pos.y + padding * camera.zoom * 3.0f + titleSize.y,
-        }, camera);
-
-
-    gui::draw_text(_description.wrapped, textPos);
+    gui::draw_text(_description.wrapped, ::GetWorldToScreen2D(textPos, camera));
 }
