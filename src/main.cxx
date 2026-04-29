@@ -1,14 +1,17 @@
 #include <cmath>
+#include <filesystem>
 #include <format>
 #include <print>
 #include <ranges>
 
 #include "enviroment.hxx"
 #include "node.hxx"
+#include "parser.hxx"
 #include "raylib.h"
 #include "raymath.h"
 #include "uuid.hxx"
 
+namespace fs = std::filesystem;
 namespace ranges = std::ranges;
 namespace views = std::views;
 
@@ -48,7 +51,19 @@ auto render_grid(void) noexcept -> void {
     }
 }
 
-auto main(int, char** argv) -> int {
+auto main(void) -> int {
+    parser p { fs::path("assets") / "example.conf" };
+    for (const auto& word : p.words()) {
+        std::println("word: {:?}", word.text);
+        // std::println("-- row: {}", word.row);
+        // std::println("-- col: {}", word.col);
+        // std::println("-- indentLevel: {}", word.indentLevel);
+    }
+
+    return 0;
+}
+
+auto _main(int, char** argv) -> int {
     ::SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     // ::SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 

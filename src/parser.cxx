@@ -19,7 +19,7 @@ parser::parser(fs::path filePath)
                         _filePath.string()));
     }
 
-auto parser::words(void) const -> std::generator<word> {
+auto parser::words(void) const -> std::generator<parser::word> {
     std::ifstream ifs(_filePath.string());
     if (!ifs) throw std::runtime_error(
             std::format(
@@ -40,16 +40,48 @@ auto parser::words(void) const -> std::generator<word> {
 
         const char ch = (unsigned)ifs.get();
         if (ch == '#') { // comments
-            std::string line {};
-            std::getline(ifs, line);
-            continue;
+            while (!ifs.eof()
+                    && (char)(unsigned)ifs.peek() != '\n') {
+                ifs.get();
+                ret.col++;
+            };
+
+            if (!ret.text.empty()) {
+                co_yield ret;
+                ret.text.clear();
+            }
         } else if (ch == '\n') {
+            if (!ret.text.empty()) {
+                co_yield ret;
+                ret.text.clear();
+            }
+
             ret.row++;
             ret.col = 0;
             ret.indentLevel = 0;
-            continue;
         } else if (std::isspace(ch)) {
-            // TODO: co_yield
-        } else ret.text += ch;
+            if (!ret.text.empty()) {
+                co_yield ret;
+                ret.text.clear();
+            }
+        } else if (!std::isalnum(ch)) {
+            if (ch == EOF)
+                break;
+            else if (!ret.text.empty()) {
+                co_yield ret;
+                ret.text.clear();
+            }
+
+            ret.text = ch;
+            ret.col++;
+            co_yield ret;
+            ret.text.clear();
+        } else {
+            ret.text += ch;
+            ret.col++;
+        }
     };
+
+    if (!ret.text.empty())
+        co_yield ret;
 }
