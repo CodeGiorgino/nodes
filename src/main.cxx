@@ -56,8 +56,8 @@ auto main(void) -> int {
     for (const auto& word : p.words()) {
         std::println("word: {:?}", word.text);
         // std::println("-- row: {}", word.row);
-        // std::println("-- col: {}", word.col);
-        // std::println("-- indentLevel: {}", word.indentLevel);
+        std::println("-- col: {}", word.col);
+        std::println("-- indentLevel: {}", word.indentLevel);
     }
 
     return 0;
