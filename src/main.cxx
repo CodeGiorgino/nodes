@@ -54,7 +54,7 @@ auto render_grid(void) noexcept -> void {
 auto main(void) -> int {
     tokenizer t { fs::path("assets") / "example.conf" };
     for (const auto& token : t.tokens()) {
-        std::println("token: {:?}", token.text);
+        // std::println("token: {:?}", token.text);
         std::println("--type: {:?}", tokenizer::token_type_name(token.type));
     }
 
