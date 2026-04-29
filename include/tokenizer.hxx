@@ -2,6 +2,9 @@
 #include <filesystem>
 #include <generator>
 #include <string>
+#include <vector>
+
+#include "parser.hxx"
 
 class tokenizer final {
     public:
@@ -17,22 +20,25 @@ class tokenizer final {
         };
 
         enum class token_t {
-            ERR,
-
             // value types
             NUMBER,
             STRING,
+            STRING_LITERAL,
             UUID,
 
             // array syntax
+            COMMA,
             CSQARE,
             DASH,
             OSQARE,
+
+            // other
+            COLON,
         };
 
         struct token final {
-            std::string text {};
-            token_t type { token_t::ERR };
+            token_t type { token_t::STRING };
+            std::vector<parser::word> words {};
         };
 
     public:
