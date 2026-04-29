@@ -68,6 +68,12 @@ auto parser::words(void) const -> std::generator<parser::word> {
             if (ch == EOF)
                 break;
             else if (!ret.text.empty()) {
+                if (ch == '-') {
+                    ret.text += ch;
+                    ret.col++;
+                    continue;
+                }
+                
                 co_yield ret;
                 ret.text.clear();
             }
