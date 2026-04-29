@@ -6,7 +6,7 @@
 
 #include "enviroment.hxx"
 #include "node.hxx"
-#include "parser.hxx"
+#include "tokenizer.hxx"
 #include "raylib.h"
 #include "raymath.h"
 #include "uuid.hxx"
@@ -52,12 +52,10 @@ auto render_grid(void) noexcept -> void {
 }
 
 auto main(void) -> int {
-    parser p { fs::path("assets") / "example.conf" };
-    for (const auto& word : p.words()) {
-        std::println("word: {:?}", word.text);
-        // std::println("-- row: {}", word.row);
-        // std::println("-- col: {}", word.col);
-        // std::println("-- indentLevel: {}", word.indentLevel);
+    tokenizer t { fs::path("assets") / "example.conf" };
+    for (const auto& token : t.tokens()) {
+        std::println("token: {:?}", token.text);
+        std::println("--type: {:?}", tokenizer::token_type_name(token.type));
     }
 
     return 0;

@@ -5,25 +5,33 @@
 
 namespace fs = std::filesystem;
 
+parser::parser_error::parser_error(std::string_view message) noexcept {
+    _message += message;
+}
+
+auto parser::parser_error::what(void) const noexcept -> const char* {
+    return _message.c_str();
+}
+
 parser::parser(fs::path filePath)
     : _filePath(std::move(filePath)) {
         if (!fs::exists(_filePath))
-            throw std::runtime_error(
+            throw parser::parser_error(
                     std::format(
-                        "parser error - cannot find file: [{}]",
+                        "Cannot find file: [{}].",
                         _filePath.string()));
         else if (!fs::is_regular_file(_filePath))
-            throw std::runtime_error(
+            throw parser::parser_error(
                     std::format(
-                        "parser error - cannot read non-regular file: [{}]",
+                        "Cannot read non-regular file: [{}].",
                         _filePath.string()));
     }
 
 auto parser::words(void) const -> std::generator<parser::word> {
     std::ifstream ifs(_filePath.string());
-    if (!ifs) throw std::runtime_error(
+    if (!ifs) throw parser::parser_error(
             std::format(
-                "parser error - cannot open file: [{}]",
+                "Cannot open file: [{}].",
                 _filePath.string()));
 
     parser::word ret;

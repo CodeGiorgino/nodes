@@ -2,6 +2,14 @@
 
 namespace fs = std::filesystem;
 
+enviroment::enviroment_error::enviroment_error(std::string_view message) noexcept {
+    _message += message;
+}
+
+auto enviroment::enviroment_error::what(void) const noexcept -> const char* {
+    return _message.c_str();
+}
+
 auto enviroment::get_instance(void) noexcept -> enviroment& {
     static enviroment env;
     return env;
@@ -29,9 +37,9 @@ auto enviroment::load_font(unsigned fontSize) -> void {
     };
 
     if (!fs::exists(filePath))
-        throw std::runtime_error(
+        throw enviroment::enviroment_error(
                 std::format(
-                    "enviroment error - cannot find font file: [{}]",
+                    "Cannot find font file: [{}].",
                     filePath.string()));
 
     _fontMap.insert({
@@ -45,8 +53,8 @@ auto enviroment::font(void) const -> std::pair<::Font, unsigned> {
             search != _fontMap.end())
         return std::make_pair(search->second, _fontSize);
 
-    throw std::runtime_error(
-            std::format("enviroment error - font size not loaded: {}",
+    throw enviroment::enviroment_error(
+            std::format("Font size not loaded: {}.",
                 _fontSize));
 }
 
@@ -55,5 +63,5 @@ auto enviroment::font_default(void) const -> std::pair<::Font, unsigned> {
             search != _fontMap.end())
         return std::make_pair(search->second, fontSizeDefault);
 
-    throw std::runtime_error("enviroment error - default font not loaded");
+    throw enviroment::enviroment_error("Default font not loaded.");
 }

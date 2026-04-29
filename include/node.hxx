@@ -13,6 +13,17 @@ using node_map = std::unordered_map<std::string, std::vector<node_ptr>>;
 
 class node final {
     public:
+        class node_error final : public std::exception {
+            public:
+                node_error(std::string_view message = "Unknown error.") noexcept;
+
+            public:
+                auto what(void) const noexcept -> const char* override;
+
+            private:
+                std::string _message { "node error - " };
+        };
+
         enum class connection_dir {
             TO,
             FROM,

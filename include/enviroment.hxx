@@ -8,6 +8,18 @@
 
 class enviroment final {
     public:
+        class enviroment_error final : public std::exception {
+            public:
+                enviroment_error(std::string_view message = "Unknown error.") noexcept;
+
+            public:
+                auto what(void) const noexcept -> const char* override;
+
+            private:
+                std::string _message { "enviroment error - " };
+        };
+
+    public:
         enviroment(const enviroment&) noexcept = delete;
         enviroment(enviroment&&) noexcept = delete;
         ~enviroment(void) noexcept = default;

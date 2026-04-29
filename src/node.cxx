@@ -5,6 +5,14 @@
 #include "raymath.h"
 #include "uuid.hxx"
 
+node::node_error::node_error(std::string_view message) noexcept {
+    _message += message;
+}
+
+auto node::node_error::what(void) const noexcept -> const char* {
+    return _message.c_str();
+}
+
 node::node(void)
     noexcept : _uuid(uuid::generate_v4()) {
         // empty
@@ -14,12 +22,13 @@ node::node(std::string_view uuid, std::string_view title,
         std::string_view description, ::Vector2 pos)
     : _uuid(uuid), _pos(std::move(pos)) {
         if (uuid.empty())
-            throw std::runtime_error(
-                    "node error - cannot set the uuid to be empty");
+            throw node::node_error(
+                    "Cannot set the uuid to be empty.");
         else if (!uuid::test_v4(uuid))
-            throw std::runtime_error(
+            throw node::node_error(
                     std::format(
-                        "node error - invalid uuid v4 provided: {:?}", uuid));
+                        "Invalid uuid v4 provided: {:?}.",
+                        uuid));
 
         const float maxWidth = width - padding * 4.0f;
         _title = node_text {

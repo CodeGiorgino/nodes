@@ -1,9 +1,21 @@
 #pragma once
+#include <filesystem>
 #include <generator>
 #include <string>
 
 class tokenizer final {
     public:
+        class tokenizer_error final : public std::exception {
+            public:
+                tokenizer_error(std::string_view message = "Unknown error.") noexcept;
+
+            public:
+                auto what(void) const noexcept -> const char* override;
+
+            private:
+                std::string _message { "tokenizer error - " };
+        };
+
         enum class token_t {
             ERR,
 
@@ -16,10 +28,6 @@ class tokenizer final {
             CSQARE,
             DASH,
             OSQARE,
-
-            // string syntax
-            GT,
-            PIPE,
         };
 
         struct token final {
@@ -28,16 +36,16 @@ class tokenizer final {
         };
 
     public:
-        tokenizer(std::string_view filePath);
+        tokenizer(std::filesystem::path filePath);
         tokenizer(const tokenizer&) = delete;
         tokenizer(tokenizer&&) = delete;
         ~tokenizer(void) noexcept = default;
 
     public:
         auto tokens(void) const -> std::generator<token>;
-        static constexpr auto token_type_name(token_t type) -> std::string_view;
+        static auto token_type_name(token_t type) -> std::string_view;
 
     private:
-        std::string_view _filePath {};
+        std::filesystem::path _filePath {};
 };
 
