@@ -36,7 +36,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_EXTENSIONS OFF)
 
 target_compile_options(${PROJECT_NAME}
-    PRIVATE -Wextra -Wall -pedantic)
+    PRIVATE -Wextra -Wall -pedantic -g -ggdb)
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
