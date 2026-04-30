@@ -10,6 +10,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "uuid.hxx"
+#include "parser.hxx"
 
 namespace fs = std::filesystem;
 namespace ranges = std::ranges;
@@ -52,6 +53,11 @@ auto render_grid(void) noexcept -> void {
 }
 
 auto main(void) -> int {
+    // parser p { fs::path("assets") / "example.conf" };
+    // for (const auto& str : p.strings()) {
+    //     std::println("string: {:?}", str.text);
+    // }
+
     tokenizer t { fs::path("assets") / "example.conf" };
     for (const auto& token : t.tokens()) {
         std::println("token: {:?}", token.text());

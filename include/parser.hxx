@@ -18,7 +18,7 @@ class parser final {
                 std::string _message { "parser error - " };
         };
 
-        struct word final {
+        struct string final {
             size_t row { 0 };
             size_t col { 0 };
             size_t indentLevel { 0 };
@@ -32,7 +32,7 @@ class parser final {
         ~parser(void) noexcept = default;
 
     public:
-        auto words(void) const -> std::generator<word>;
+        auto strings(void) const -> std::generator<string>;
 
     private:
         std::filesystem::path _filePath {};

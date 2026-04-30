@@ -29,7 +29,7 @@ parser::parser(fs::path filePath)
                         _filePath.parent_path().string()));
     }
 
-auto parser::words(void) const -> std::generator<parser::word> {
+auto parser::strings(void) const -> std::generator<parser::string> {
     std::ifstream ifs(_filePath.string());
     if (!ifs) throw parser::parser_error(
             std::format(
@@ -37,7 +37,21 @@ auto parser::words(void) const -> std::generator<parser::word> {
                 _filePath.filename().string(),
                 _filePath.parent_path().string()));
 
-    parser::word ret;
+    parser::string ret;
+    const auto trim =
+        [&](void) noexcept -> void {
+            if (ret.text.empty())
+                return;
+
+            size_t start = 0;
+            size_t end = ret.text.size() - 1;
+            for (; start < ret.text.size()
+                    && std::isspace(ret.text[start]); start++);
+            for (; end > start
+                    && std::isspace(ret.text[end]); end--);
+            ret.text = ret.text.substr(start, end + 1);
+        };
+
     while (!ifs.eof()) {
         // update the indentation level
         if (ret.col == 0) {
@@ -57,11 +71,13 @@ auto parser::words(void) const -> std::generator<parser::word> {
                 ret.col++;
             };
 
+            trim();
             if (!ret.text.empty()) {
                 co_yield ret;
                 ret.text.clear();
             }
         } else if (ch == '\n') {
+            trim();
             if (!ret.text.empty()) {
                 co_yield ret;
                 ret.text.clear();
@@ -70,12 +86,8 @@ auto parser::words(void) const -> std::generator<parser::word> {
             ret.row++;
             ret.col = 0;
             ret.indentLevel = 0;
-        } else if (std::isspace(ch)) {
-            if (!ret.text.empty()) {
-                co_yield ret;
-                ret.text.clear();
-            }
-        } else if (!std::isalnum(ch)) {
+        } else if (!std::isspace(ch)
+                && !std::isalnum(ch)) {
             if (ch == EOF)
                 break;
             else if (!ret.text.empty()) {
@@ -85,6 +97,7 @@ auto parser::words(void) const -> std::generator<parser::word> {
                     continue;
                 }
 
+                trim();
                 co_yield ret;
                 ret.text.clear();
             }
@@ -99,6 +112,7 @@ auto parser::words(void) const -> std::generator<parser::word> {
         }
     };
 
+    trim();
     if (!ret.text.empty())
         co_yield ret;
 }

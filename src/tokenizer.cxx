@@ -19,32 +19,40 @@ auto tokenizer::tokenizer_error::what(void) const noexcept -> const char* {
 
 auto tokenizer::token::text(void) const noexcept -> std::string {
     std::string ret {};
-    for (size_t i = 0; i < words.size(); i++) {
-        const auto& word = words[i];
-        const auto isalnum = ranges::all_of(word.text,
-                [](char ch) -> bool { return std::isalnum(ch); });
+    for (size_t i = 0; i < strings.size(); i++) {
+        const auto& str = strings[i];
+        if (str.text.empty())
+            continue;
 
         if (type == tokenizer::token_t::STRING_LITERAL) {
             if (!ret.empty()) {
                 if (i > 0) {
-                    const auto& lastWord = words[i - 1];
-                    if (lastWord.row < word.row)
+                    const auto& lastWord = strings[i - 1];
+                    if (lastWord.row < str.row)
                         ret += '\n';
-                    else if (isalnum)
-                        ret += ' ';
-                } else if (isalnum)
-                    ret += ' ';
+                }
             }
 
-            ret += word.text;
-        } else {
-            if (!ret.empty() && isalnum)
+            ret += str.text;
+            if (!std::isalnum(str.text[str.text.size() - 1]))
                 ret += ' ';
-            ret += word.text;
+        } else {
+            ret += str.text;
+            if (!std::isalnum(str.text[str.text.size() - 1]))
+                ret += ' ';
         }
     }
 
-    return ret;
+    if (ret.empty())
+        return {};
+
+    size_t start = 0;
+    size_t end = ret.size() - 1;
+    for (; start < ret.size()
+            && std::isspace(ret[start]); start++);
+    for (; end > start
+            && std::isspace(ret[end]); end--);
+    return ret.substr(start, end + 1);
 }
 
 tokenizer::tokenizer(fs::path filePath) 
@@ -52,47 +60,47 @@ tokenizer::tokenizer(fs::path filePath)
 
 auto tokenizer::tokens(void) const -> std::generator<tokenizer::token> {
     parser p { _filePath };
-    auto gen = p.words();
+    auto gen = p.strings();
     auto it = gen.begin();
 
     tokenizer::token ret {};
     while (it != gen.end()) {
 __tokenizer_scan_start:
-        ret.words.clear();
-        const auto& word = *it;
+        ret.strings.clear();
+        const auto& str = *it;
 
         // handle syntax tokens
-        if (word.text == ",") {
+        if (str.text == ",") {
             ret.type = tokenizer::token_t::COMMA;
-            ret.words.push_back(word);
+            ret.strings.push_back(str);
             co_yield ret;
 
             it++;
             continue;
-        } else if (word.text == "]") {
+        } else if (str.text == "]") {
             ret.type = tokenizer::token_t::CSQARE;
-            ret.words.push_back(word);
+            ret.strings.push_back(str);
             co_yield ret;
 
             it++;
             continue;
-        } else if (word.text == "-") {
+        } else if (str.text == "-") {
             ret.type = tokenizer::token_t::DASH;
-            ret.words.push_back(word);
+            ret.strings.push_back(str);
             co_yield ret;
 
             it++;
             continue;
-        } else if (word.text == "[") {
+        } else if (str.text == "[") {
             ret.type = tokenizer::token_t::OSQARE;
-            ret.words.push_back(word);
+            ret.strings.push_back(str);
             co_yield ret;
 
             it++;
             continue;
-        } else if (word.text == ":") {
+        } else if (str.text == ":") {
             ret.type = tokenizer::token_t::COLON;
-            ret.words.push_back(word);
+            ret.strings.push_back(str);
             co_yield ret;
 
             it++;
@@ -103,9 +111,9 @@ __tokenizer_scan_start:
         static const std::regex re(
                 R"(^[-+]?(?:\d+(?:\.\d*)?|\.\d+)$)");
 
-        if (std::regex_match(word.text, re)) {
+        if (std::regex_match(str.text, re)) {
             ret.type = tokenizer::token_t::NUMBER;
-            ret.words.push_back(word);
+            ret.strings.push_back(str);
             co_yield ret;
 
             it++;
@@ -113,16 +121,16 @@ __tokenizer_scan_start:
         }
 
         // handle multi-line string tokens
-        if (word.text == ">" || word.text == "|") {
-            if (word.text == ">")
+        if (str.text == ">" || str.text == "|") {
+            if (str.text == ">")
                 ret.type = tokenizer::token_t::STRING;
-            else if (word.text == "|")
+            else if (str.text == "|")
                 ret.type = tokenizer::token_t::STRING_LITERAL;
             else throw tokenizer::tokenizer_error(
                     std::format(
                         "Multi-line string definition character not implemented ({:?}): [{}:{}:{}] [{}].",
-                        word.text, _filePath.filename().string(),
-                        word.row, word.col, _filePath.parent_path().string()));
+                        str.text, _filePath.filename().string(),
+                        str.row, str.col, _filePath.parent_path().string()));
 
             if (++it == gen.end()) {
                 co_yield ret;
@@ -135,7 +143,7 @@ __tokenizer_scan_start:
                 if (nextWord.indentLevel != indentLevel) {
                     co_yield ret;
                     goto __tokenizer_scan_start;
-                } else ret.words.push_back(nextWord);
+                } else ret.strings.push_back(nextWord);
 
                 it++;
             };
@@ -147,9 +155,9 @@ __tokenizer_scan_start:
         }
 
         // handle UUID tokens
-        if (uuid::test_v4(word.text)) {
+        if (uuid::test_v4(str.text)) {
             ret.type = tokenizer::token_t::UUID;
-            ret.words.push_back(word);
+            ret.strings.push_back(str);
             co_yield ret;
 
             it++;
@@ -158,7 +166,7 @@ __tokenizer_scan_start:
 
         // defaults to string token
         ret.type = tokenizer::token_t::STRING;
-        ret.words.push_back(word);
+        ret.strings.push_back(str);
         co_yield ret;
 
         it++;
