@@ -22,7 +22,6 @@ class enviroment final {
     public:
         enviroment(const enviroment&) noexcept = delete;
         enviroment(enviroment&&) noexcept = delete;
-        ~enviroment(void) noexcept = default;
 
     public:
         static auto get_instance(void) noexcept -> enviroment&;

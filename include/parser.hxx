@@ -29,7 +29,6 @@ class parser final {
         parser(std::filesystem::path filePath);
         parser(const parser&)  = delete;
         parser(parser&&)       = delete;
-        ~parser(void) noexcept = default;
 
     public:
         auto strings(void) const -> std::generator<string>;
