@@ -19,12 +19,19 @@ class lexer final {
         };
 
     public:
+        lexer(void) = delete;
         lexer(std::filesystem::path filePath);
+
         lexer(const lexer&) = delete;
+        auto operator =(const lexer&) = delete;
+
         lexer(lexer&&) = delete;
+        auto operator =(lexer&&) = delete;
+
+        ~lexer(void) noexcept = default;
 
     public:
-        auto nodes(void) const -> std::generator<node>;
+        auto nodes(void) const -> std::generator<node_ptr>;
 
     private:
         std::filesystem::path _filePath {};

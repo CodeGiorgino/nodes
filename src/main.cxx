@@ -51,31 +51,7 @@ auto render_grid(void) noexcept -> void {
     }
 }
 
-// FIXME: temporary main for testing the lexer class
 auto main(int, char** argv) -> int {
-    // FIXME: needed for the node class to work
-    auto& env = enviroment::get_instance();
-    env.init(*argv);
-
-    lexer lex { fs::path("assets") / "example.conf" };
-    for (const auto& node : lex.nodes()) {
-        std::println("node: {:?}", node.uuid());
-        std::println("-- title: {:?}", node.title().text);
-        std::println("-- description: {:?}", node.description().text);
-
-        const auto& pos = node.position();
-        std::println("-- position: [{}, {}]", pos.x, pos.y);
-
-        std::println("-- connections:");
-        for (const auto& conn : node.connections())
-            std::println("  -- node: {:?}", conn);
-        std::println();
-    }
-
-    return 0;
-}
-
-auto _main(int, char** argv) -> int {
     ::SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     // ::SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
@@ -93,46 +69,9 @@ auto _main(int, char** argv) -> int {
     auto& camera = env.camera();
     camera.zoom = 1.0f;
 
-    std::vector nodes {
-        std::make_shared<node>(
-            "c79b4316-7236-45ca-ab1b-d5bd8b78a486",
-            "this is a title",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec"
-            " commodo dui. Mauris eu risus et libero pulvinar facilisis. In"
-            " commodo imperdiet mauris, vel hendrerit dolor ultricies quis."
-            " Vivamus varius tellus sed libero fringilla ultrices. Maecenas at"
-            " ipsum sit amet mauris finibus accumsan. In congue consectetur dui."
-            " commodo dui. Mauris eu risus et libero pulvinar facilisis. In"
-            " commodo imperdiet mauris, vel hendrerit dolor ultricies quis."
-            " Vivamus varius tellus sed libero fringilla ultrices. Maecenas at"
-            " ipsum sit amet mauris finibus accumsan. In congue consectetur dui."
-            " Nam id fermentum orci.",
-            ::Vector2 { 0, 0 }),
-        std::make_shared<node>(
-            "c79b4316-7236-45ca-ab1b-d5bd8b78a485",
-            "this is a title",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec"
-            " commodo dui. Mauris eu risus et libero pulvinar facilisis. In"
-            " commodo imperdiet mauris, vel hendrerit dolor ultricies quis."
-            " Vivamus varius tellus sed libero fringilla ultrices. Maecenas at"
-            " ipsum sit amet mauris finibus accumsan. In congue consectetur dui."
-            " Nam id fermentum orci.",
-            ::Vector2 { 600, 0 }),
-        std::make_shared<node>(
-            "c79b4316-7236-45ca-ab1b-d5bd8b78a484",
-            "this is a title",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec"
-            " commodo dui. Mauris eu risus et libero pulvinar facilisis. In"
-            " commodo imperdiet mauris, vel hendrerit dolor ultricies quis."
-            " Vivamus varius tellus sed libero fringilla ultrices. Maecenas at"
-            " ipsum sit amet mauris finibus accumsan. In congue consectetur dui."
-            " Nam id fermentum orci.",
-            ::Vector2 { 600, 250 }),
-    };
-
-    node_map nodeMap {};
-    for (const auto& ptr : nodes)
-        nodeMap.insert({ std::string(ptr->uuid()), {} });
+    // TODO: allow for command line arguments
+    lexer lex { fs::path("assets") / "example.conf" };
+    auto nodes = lex.nodes() | ranges::to<std::vector>();
 
     while (!::WindowShouldClose()) {
         ::BeginDrawing();
@@ -147,8 +86,10 @@ auto _main(int, char** argv) -> int {
             }
             ::EndMode2D();
 
-                for (const auto& node : nodes)
-                    node->render_text();
+            for (const auto& node : nodes) {
+                node->render_text();
+                node->update();
+            }
 
             // update the camera position
             if (::IsMouseButtonDown(::MOUSE_BUTTON_LEFT)) {

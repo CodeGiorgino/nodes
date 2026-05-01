@@ -21,7 +21,7 @@ auto lexer::lexer_error::what(void) const noexcept -> const char* {
 lexer::lexer(fs::path filePath)
     : _filePath(std::move(filePath)) {}
 
-auto lexer::lexer::nodes(void) const -> std::generator<node> {
+auto lexer::lexer::nodes(void) const -> std::generator<node_ptr> {
     tokenizer t { _filePath };
     auto gen = t.tokens();
     auto it = gen.begin();
@@ -194,11 +194,11 @@ auto lexer::lexer::nodes(void) const -> std::generator<node> {
             std::stof(std::string { pos[1] }),
         };
 
-        auto retNode = node(retBuffer.uuid, retBuffer.title,
+        auto retNode = std::make_shared<node>(retBuffer.uuid, retBuffer.title,
                 retBuffer.description, retBuffer.pos);
 
         if (check_token_text("connections")) {
-            auto& connections = retNode.connections();
+            auto& connections = retNode->connections();
             for (const auto& conn :
                     lex_list("connections", { tokenizer::token_t::UUID }))
                 connections.emplace_back(conn);
