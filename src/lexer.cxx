@@ -31,7 +31,7 @@ auto lexer::lexer::nodes(void) const -> std::generator<node> {
         std::string title {};
         std::string description {};
         ::Vector2 pos {};
-    } ret;
+    } retBuffer;
 
     const auto check_token_type =
         [&](std::initializer_list<tokenizer::token_t> types) noexcept -> bool {
@@ -162,40 +162,48 @@ auto lexer::lexer::nodes(void) const -> std::generator<node> {
     while (it != gen.end()) {
         // uuid
         expect_token_type({ tokenizer::token_t::UUID });
-        ret.uuid = (*it).text();
+        retBuffer.uuid = (*it).text();
         it++;
 
         expect_token_type({ tokenizer::token_t::COLON });
         it++;
 
         // title
-        ret.title = lex_value("title", { tokenizer::token_t::STRING,
+        retBuffer.title = lex_value("title", { tokenizer::token_t::STRING,
                 tokenizer::token_t::STRING_LITERAL });
 
         // description
         if (check_token_text("description")) {
-            ret.description = lex_value("description", {
+            retBuffer.description = lex_value("description", {
                         tokenizer::token_t::STRING,
                         tokenizer::token_t::STRING_LITERAL
                     });
         }
 
         // position
-        const auto posValues = lex_list("position", { tokenizer::token_t::NUMBER });
-        if (posValues.size() != 2)
+        const auto pos = lex_list("position", { tokenizer::token_t::NUMBER });
+        if (pos.size() != 2)
             throw lexer::lexer_error(
                     std::format(
                         "Position expexts 2 entries, but got {} instead: [{}:{}:{}].",
-                        posValues.size(), _filePath.string(),
-                        (*it).strings[0].row, (*it).strings[0].col));
+                        pos.size(), _filePath.string(), (*it).strings[0].row,
+                        (*it).strings[0].col));
 
-        ret.pos = ::Vector2 {
-            std::stof(std::string { posValues[0] }),
-            std::stof(std::string { posValues[1] }),
+        retBuffer.pos = ::Vector2 {
+            std::stof(std::string { pos[0] }),
+            std::stof(std::string { pos[1] }),
         };
 
-        // TODO: connections
+        auto retNode = node(retBuffer.uuid, retBuffer.title,
+                retBuffer.description, retBuffer.pos);
 
-        co_yield node { ret.uuid, ret.title, ret.description, ret.pos };
+        if (check_token_text("connections")) {
+            auto& connections = retNode.connections();
+            for (const auto& conn :
+                    lex_list("connections", { tokenizer::token_t::UUID }))
+                connections.emplace_back(conn);
+        }
+
+        co_yield retNode;
     };
 }

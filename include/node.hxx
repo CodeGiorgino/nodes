@@ -24,21 +24,9 @@ class node final {
                 std::string _message { "node error - " };
         };
 
-        enum class connection_dir {
-            TO,
-            FROM,
-        };
-
-        struct connection {
-            std::string uuid {};
-            connection_dir dir { connection_dir::TO };
-        };
-
     public:
         node(void) noexcept;
         node(std::string_view uuid, std::string_view title, std::string_view description, ::Vector2 pos);
-        node(const node&)    = delete;
-        node(node&&)         = delete;
 
     public:
         [[nodiscard]] auto uuid(void) const noexcept -> std::string;
@@ -48,6 +36,8 @@ class node final {
         [[nodiscard]] auto& description(this Self&& self) noexcept;
         template<class Self>
         [[nodiscard]] auto& position(this Self&& self) noexcept;
+        template<class Self>
+        [[nodiscard]] auto& connections(this Self&& self) noexcept;
 
         auto update(void) noexcept -> void;
         auto render(void) const noexcept -> void;
@@ -68,6 +58,8 @@ class node final {
         node_text _title {};
         node_text _description {};
         ::Vector2 _pos {};
+
+        std::vector<std::string> _connections {};
 };
 
 template<class Self>
@@ -83,4 +75,9 @@ auto& node::description(this Self&& self) noexcept {
 template<class Self>
 auto& node::position(this Self&& self) noexcept {
     return std::forward_like<Self>(self._pos);
+}
+
+template<class Self>
+auto& node::connections(this Self&& self) noexcept {
+    return std::forward_like<Self>(self._connections);
 }

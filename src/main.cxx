@@ -65,6 +65,11 @@ auto main(int, char** argv) -> int {
 
         const auto& pos = node.position();
         std::println("-- position: [{}, {}]", pos.x, pos.y);
+
+        std::println("-- connections:");
+        for (const auto& conn : node.connections())
+            std::println("  -- node: {:?}", conn);
+        std::println();
     }
 
     return 0;
