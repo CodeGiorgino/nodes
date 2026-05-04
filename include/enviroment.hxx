@@ -31,7 +31,7 @@ class enviroment final {
     public:
         static auto get_instance(void) noexcept -> enviroment&;
 
-        auto init(std::string_view program) -> void;
+        auto init(std::string_view program, std::filesystem::path configFilePath) -> void;
         auto deinit(void) noexcept -> void;
 
         template<class Self>
@@ -49,6 +49,7 @@ class enviroment final {
 
     private:
         std::filesystem::path _program {};
+        std::filesystem::path _configFilePath {};
 
         ::Camera2D _camera {};
 

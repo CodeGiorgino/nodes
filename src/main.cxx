@@ -52,7 +52,15 @@ auto render_grid(void) noexcept -> void {
     }
 }
 
-auto main(int, char** argv) -> int {
+auto main(int argc, char** argv) -> int {
+    fs::path configFilePath { fs::path("assets") / "example.conf" };
+    if (argc == 2)
+        configFilePath = fs::path{ *(argv + 1) };
+    else if (argc > 2)
+        throw std::runtime_error(
+                    "Invalid number of arguments.\n"
+                    "Execute `nodes --help` for more information.");
+
     ::SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
     // ::SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
@@ -65,13 +73,12 @@ auto main(int, char** argv) -> int {
             (::GetMonitorHeight(currentMonitor) - initialHeight) * 0.5f);
 
     auto& env = enviroment::get_instance();
-    env.init(*argv);
+    env.init(*argv, configFilePath);
 
     auto& camera = env.camera();
     camera.zoom = 1.0f;
 
-    // TODO: allow for command line arguments
-    lexer lex { fs::path("assets") / "example.conf" };
+    lexer lex { configFilePath };
     auto nodes = lex.nodes() | ranges::to<std::vector>();
 
     // get the connections to each node
@@ -82,12 +89,6 @@ auto main(int, char** argv) -> int {
                     it != nodeMap.end())
                 (*it).second.push_back(node);
             else nodeMap.insert({ uuid, { node } });
-
-    for (const auto& [k, v]: nodeMap) {
-        std::println("-- node: {:?}", k);
-        for (const auto& node : v)
-            std::println("  -- connection: {:?}", node->uuid());
-    }
 
     while (!::WindowShouldClose()) {
         ::BeginDrawing();
@@ -101,8 +102,31 @@ auto main(int, char** argv) -> int {
                 for (const auto& node : nodes) {
                     node->render();
 
+                    // no connections to the node
+                    if (!nodeMap.contains(node->uuid()))
+                        continue;
+
                     // render the connections
                     const auto& pos = node->position();
+
+                    // TODO: order the connections based on the y position
+                    // of the node to which to connect to, then draw the
+                    // connections using the formula:
+                    //
+                    // y = nodeHeight / 2.0f + gap (index - connectionIndex)
+                    //
+                    // Use the formula to get the relative y position (distance
+                    // from the top of the node position) of both the origin
+                    // node and the destination node
+
+                    for (const auto& uuid : node->connections()) {
+                        // unreachable: node map creation error
+                        if (!nodeMap.contains(uuid))
+                            throw std::runtime_error(
+                                    std::format(
+                                        "Missing connection definitions in node map: {:?}",
+                                        uuid));
+                    }
                 }
             }
             ::EndMode2D();

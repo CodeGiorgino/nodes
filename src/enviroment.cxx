@@ -15,10 +15,14 @@ auto enviroment::get_instance(void) noexcept -> enviroment& {
     return env;
 }
 
-auto enviroment::init(std::string_view program) -> void {
-    _program = fs::absolute(program);
-    load_font();
-}
+auto enviroment::init(std::string_view program, fs::path configFilePath)
+    -> void {
+        _program = fs::absolute(program);
+        _configFilePath = configFilePath;
+
+        // load the default font
+        load_font();
+    }
 
 auto enviroment::deinit(void) noexcept -> void {
     for (auto& [k, v] : _fontMap)
