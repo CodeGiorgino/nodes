@@ -31,19 +31,51 @@ node::node(std::string_view uuid, std::string_view title,
                         uuid));
 
         const float maxWidth = width - padding * 4.0f;
-        _title = node_text {
-            .text = std::string { title },
-            .wrapped = gui::wrap_text(title, maxWidth),
-        };
 
-        _description = node_text {
-            .text = std::string { description },
-            .wrapped = gui::wrap_text(description, maxWidth),
-        };
+        { // title
+            _title = node_text {
+                std::string { title },
+                gui::wrap_text(title, maxWidth),
+            };
+
+            const auto textSize = gui::measure_text(_title.wrapped);
+            _titleSize = ::Vector2 {
+                width,
+                textSize.y + padding * 2.0f,
+            };
+        }
+
+        { // description
+            _description = node_text {
+                std::string { description },
+                gui::wrap_text(description, maxWidth),
+            };
+
+            const auto textSize = gui::measure_text(_description.wrapped);
+            _descriptionSize = ::Vector2 {
+                width,
+                textSize.y + padding * 2.0f,
+            };
+        }
     }
 
 auto node::uuid(void) const noexcept -> std::string {
     return _uuid;
+}
+
+auto node::title_size(void) const noexcept -> ::Vector2 {
+    return _titleSize;
+}
+
+auto node::description_size(void) const noexcept -> ::Vector2 {
+    return _descriptionSize;
+}
+
+auto node::size(void) const noexcept -> ::Vector2 {
+    return {
+        _titleSize.x,
+        _titleSize.y + _descriptionSize.y
+    };
 }
 
 auto node::update(void) noexcept -> void {
@@ -54,27 +86,17 @@ auto node::render(void) const noexcept -> void {
     auto recPos = _pos;
 
     { // draw title
-        const auto textSize = gui::measure_text(_title.wrapped);
-        const ::Vector2 recSize {
-            width,
-            textSize.y + padding * 2.0f,
-        };
+        ::DrawRectangleV(recPos, _titleSize, ::ColorAlpha(::BLUE, 0.2));
+        ::DrawRectangleLines(recPos.x, recPos.y, _titleSize.x, _titleSize.y,
+                ::BLACK);
 
-        ::DrawRectangleV(recPos, recSize, ::ColorAlpha(::BLUE, 0.2));
-        ::DrawRectangleLines(recPos.x, recPos.y, recSize.x, recSize.y, ::BLACK);
-
-        recPos.y += recSize.y;
+        recPos.y += _titleSize.y;
     }
 
     { // draw description
-        const auto textSize = gui::measure_text(_description.wrapped);
-        const ::Vector2 recSize {
-            width,
-            textSize.y + padding * 2.0f,
-        };
-
-        ::DrawRectangleV(recPos, recSize, ::ColorAlpha(::LIGHTGRAY, 0.2));
-        ::DrawRectangleLines(recPos.x, recPos.y, recSize.x, recSize.y, ::BLACK);
+        ::DrawRectangleV(recPos, _descriptionSize, ::ColorAlpha(::LIGHTGRAY, 0.2));
+        ::DrawRectangleLines(recPos.x, recPos.y, _descriptionSize.x,
+                _descriptionSize.y, ::BLACK);
     }
 }
 

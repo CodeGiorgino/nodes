@@ -44,18 +44,29 @@ class node final {
 
     public:
         [[nodiscard]] auto uuid(void) const noexcept -> std::string;
+
         template<class Self>
         [[nodiscard]] auto& title(this Self&& self) noexcept;
+
         template<class Self>
         [[nodiscard]] auto& description(this Self&& self) noexcept;
+
+        auto title_size(void) const noexcept -> ::Vector2;
+        auto description_size(void) const noexcept -> ::Vector2;
+        auto size(void) const noexcept -> ::Vector2;
+
         template<class Self>
         [[nodiscard]] auto& position(this Self&& self) noexcept;
+
         template<class Self>
         [[nodiscard]] auto& connections(this Self&& self) noexcept;
 
         auto update(void) noexcept -> void;
         auto render(void) const noexcept -> void;
         auto render_text(void) const noexcept -> void;
+
+    public:
+        static constexpr float connectionGap { 20 };
 
     private:
         static constexpr float width { 500 };
@@ -70,7 +81,11 @@ class node final {
         std::string _uuid {};
 
         node_text _title {};
+        ::Vector2 _titleSize {};
+
         node_text _description {};
+        ::Vector2 _descriptionSize {};
+
         ::Vector2 _pos {};
 
         std::vector<std::string> _connections {};
