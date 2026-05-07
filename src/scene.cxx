@@ -80,6 +80,76 @@ auto scene::render_grid(void) const noexcept -> void {
     }
 }
 
+auto scene::render_nodes(void) const -> void {
+    for (const auto& node : _nodes) {
+        // iterate connections
+        for (size_t indexFrom = 0; indexFrom < node->connections().size();
+                indexFrom++) {
+            const auto& connectedNodeUuid =
+                node->connections()[indexFrom];
+            const auto& connectedNode =
+                [&](void) -> node_ptr {
+                    for (const auto& n : _nodes)
+                        if (n->uuid() == connectedNodeUuid)
+                            return n;
+                    throw std::runtime_error(
+                            std::format(
+                                "-- Configuration error - Cannot find node {:?} connected to {:?}",
+                                connectedNodeUuid, node->uuid()));
+                }();
+
+            // find connections definition to the connected node
+            const auto it = _nodeMap.find(connectedNodeUuid);
+            if (it == _nodeMap.end())
+                // unreachable: node map creation error
+                throw std::runtime_error(
+                        std::format(
+                            "-- Node map error - Missing connection definitions in node map: {:?}",
+                            connectedNodeUuid));
+
+            // find the node index in the connected node connections
+            const auto indexTo =
+                [&](void) -> size_t {
+                    for (size_t i = 0; it->second.size(); i++)
+                        if (it->second[i]->uuid() == node->uuid())
+                            return i;
+                    throw std::runtime_error(
+                            std::format(
+                                "-- Node map error - Missing connection definition from node {:?} to node {:?}",
+                                node->uuid(), connectedNodeUuid));
+                }();
+
+            // draw the connection based on the formula:
+            // y = nodeHeight / 2.0f + gap (connectionIndex - 1)
+
+            const ::Vector2 startPos {
+                node->position().x + node->size().x,
+                    node->position().y
+                        + node->size().y * 0.5f
+                        + node::connectionGap * ((int)indexFrom - 1),
+            };
+
+            const ::Vector2 endPos {
+                connectedNode->position().x,
+                    connectedNode->position().y
+                        + connectedNode->size().y * 0.5f
+                        + node::connectionGap * ((int)indexTo - 1),
+            };
+
+            // FIXME: maybe delete (?)
+            const float connectionRadius { 5 };
+            ::DrawCircleV(startPos, connectionRadius, ::RED);
+            ::DrawCircleV(endPos, connectionRadius, ::BLUE);
+
+            // ::DrawLineV(startPos, endPos, ::BLACK);
+            DrawLineBezier(startPos, endPos, node::connectionThickness,
+                    node::connectionColor);
+        }
+
+        node->render();
+    }
+}
+
 auto scene::render(void) const -> void {
     const auto& env = enviroment::get_instance();
     const auto& camera = env.camera();
@@ -87,70 +157,7 @@ auto scene::render(void) const -> void {
     ::BeginMode2D(camera);
     {
         render_grid();
-
-        for (const auto& node : _nodes) {
-            node->render();
-
-            // iterate connections
-            for (size_t indexFrom = 0; indexFrom < node->connections().size();
-                    indexFrom++) {
-                const auto& connectedNodeUuid =
-                    node->connections()[indexFrom];
-                const auto& connectedNode =
-                    [&](void) -> node_ptr {
-                        for (const auto& n : _nodes)
-                            if (n->uuid() == connectedNodeUuid)
-                                return n;
-                        throw std::runtime_error(
-                                std::format(
-                                    "-- Configuration error - Cannot find node {:?} connected to {:?}",
-                                    connectedNodeUuid, node->uuid()));
-                    }();
-
-                // find connections definition to the connected node
-                const auto it = _nodeMap.find(connectedNodeUuid);
-                if (it == _nodeMap.end())
-                    // unreachable: node map creation error
-                    throw std::runtime_error(
-                            std::format(
-                                "-- Node map error - Missing connection definitions in node map: {:?}",
-                                connectedNodeUuid));
-
-                // find the node index in the connected node connections
-                const auto indexTo =
-                    [&](void) -> size_t {
-                        for (size_t j = 0; it->second.size(); j++)
-                            if (it->second[j]->uuid() == node->uuid())
-                                return j;
-                        throw std::runtime_error(
-                                std::format(
-                                    "-- Node map error - Missing connection definition from node {:?} to node {:?}",
-                                    node->uuid(), connectedNodeUuid));
-                    }();
-
-                // draw the connection based on the formula:
-                // y = nodeHeight / 2.0f + gap (connectionIndex - 1)
-
-                const ::Vector2 posFrom {
-                    node->position().x + node->size().x,
-                        node->position().y
-                            + node->size().y * 0.5f
-                            + node::connectionGap * ((int)indexFrom - 1),
-                };
-
-                const ::Vector2 posTo {
-                    connectedNode->position().x,
-                        connectedNode->position().y
-                            + connectedNode->size().y * 0.5f
-                            + node::connectionGap * ((int)indexTo - 1),
-                };
-
-                const float connectionRadius { 5 };
-                ::DrawCircleV(posFrom, connectionRadius, ::RED);
-                ::DrawCircleV(posTo, connectionRadius, ::BLUE);
-                ::DrawLineV(posFrom, posTo, ::BLACK);
-            }
-        }
+        render_nodes();
     }
     ::EndMode2D();
 

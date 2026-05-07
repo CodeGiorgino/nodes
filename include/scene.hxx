@@ -48,6 +48,7 @@ class scene final {
 
     private:
         auto render_grid(void) const noexcept -> void;
+        auto render_nodes(void) const -> void;
 
     private:
         std::filesystem::path _configFilePath {};

@@ -67,10 +67,12 @@ class node final {
 
     public:
         static inline constexpr float connectionGap { 20 };
+        static inline constexpr float connectionThickness { 2 };
+        static inline constexpr ::Color connectionColor { ::BLACK };
 
     private:
         static inline constexpr float width { 500 };
-        static constexpr float padding { 10 };
+        static inline constexpr float padding { 10 };
 
         struct node_text {
             std::string text {};
