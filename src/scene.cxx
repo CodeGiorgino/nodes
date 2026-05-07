@@ -53,8 +53,8 @@ auto scene::render_grid(void) const noexcept -> void {
 
     const auto topLeft = ::GetScreenToWorld2D({ 0, 0 }, camera);
     const auto bottomRight = ::GetScreenToWorld2D({
-            (float)::GetScreenWidth(),
-            (float)::GetScreenHeight()
+                (float)::GetScreenWidth(),
+                (float)::GetScreenHeight(),
             }, camera);
 
     const auto gridStart = ::Vector2 {
@@ -70,13 +70,13 @@ auto scene::render_grid(void) const noexcept -> void {
     for (float y : views::iota(0)
             | views::take((int)((gridEnd.y - gridStart.y) / env.gridSize) + 1)) {
         const auto yPos = gridStart.y + (y * env.gridSize);
-        ::DrawLine(gridStart.x, yPos, gridEnd.x, yPos, ::LIGHTGRAY);
+        ::DrawLine(gridStart.x, yPos, gridEnd.x, yPos, scene::style::gridColor);
     }
 
     for (float x : views::iota(0)
             | views::take((int)((gridEnd.x - gridStart.x) / env.gridSize) + 1)) {
         const auto xPos = gridStart.x + (x * env.gridSize);
-        ::DrawLine(xPos, gridStart.y, xPos, gridEnd.y, ::LIGHTGRAY);
+        ::DrawLine(xPos, gridStart.y, xPos, gridEnd.y, scene::style::gridColor);
     }
 }
 
@@ -126,24 +126,18 @@ auto scene::render_nodes(void) const -> void {
                 node->position().x + node->size().x,
                     node->position().y
                         + node->size().y * 0.5f
-                        + node::connectionGap * ((int)indexFrom - 1),
+                        + node::style::connectionGap * ((int)indexFrom - 1),
             };
 
             const ::Vector2 endPos {
                 connectedNode->position().x,
                     connectedNode->position().y
                         + connectedNode->size().y * 0.5f
-                        + node::connectionGap * ((int)indexTo - 1),
+                        + node::style::connectionGap * ((int)indexTo - 1),
             };
 
-            // FIXME: maybe delete (?)
-            const float connectionRadius { 5 };
-            ::DrawCircleV(startPos, connectionRadius, ::RED);
-            ::DrawCircleV(endPos, connectionRadius, ::BLUE);
-
-            // ::DrawLineV(startPos, endPos, ::BLACK);
-            DrawLineBezier(startPos, endPos, node::connectionThickness,
-                    node::connectionColor);
+            ::DrawLineBezier(startPos, endPos, node::style::connectionThickness,
+                    node::style::connectionColor);
         }
 
         node->render();
@@ -153,6 +147,8 @@ auto scene::render_nodes(void) const -> void {
 auto scene::render(void) const -> void {
     const auto& env = enviroment::get_instance();
     const auto& camera = env.camera();
+
+    ::ClearBackground(scene::style::backgroundColor);
 
     ::BeginMode2D(camera);
     {

@@ -40,6 +40,17 @@ class scene final {
         ~scene(void) noexcept = default;
 
     public:
+        static struct style {
+#ifdef DARK_THEME
+            static inline constexpr ::Color backgroundColor { ::BLACK };
+            static inline constexpr ::Color gridColor { ::LIGHTGRAY };
+#else
+            static inline constexpr ::Color backgroundColor { ::RAYWHITE };
+            static inline constexpr ::Color gridColor { ::LIGHTGRAY };
+#endif
+        } style;
+
+    public:
         auto load(void) -> void;
         auto load(std::filesystem::path configFilePath) -> void;
 

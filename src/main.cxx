@@ -44,8 +44,6 @@ auto main(int argc, char** argv) -> int {
     while (!::WindowShouldClose()) {
         ::BeginDrawing();
         {
-            ::ClearBackground(RAYWHITE);
-
             mainScene.render();
             mainScene.update();
         }

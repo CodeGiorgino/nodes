@@ -30,7 +30,7 @@ node::node(std::string_view uuid, std::string_view title,
                         "Invalid uuid v4 provided: {:?}.",
                         uuid));
 
-        const float maxWidth = width - padding * 4.0f;
+        const float maxWidth = node::style::width - node::style::padding * 4.0f;
 
         { // title
             _title = node_text {
@@ -40,8 +40,8 @@ node::node(std::string_view uuid, std::string_view title,
 
             const auto textSize = gui::measure_text(_title.wrapped);
             _titleSize = ::Vector2 {
-                width,
-                textSize.y + padding * 2.0f,
+                node::style::width,
+                textSize.y + node::style::padding * 2.0f,
             };
         }
 
@@ -53,8 +53,8 @@ node::node(std::string_view uuid, std::string_view title,
 
             const auto textSize = gui::measure_text(_description.wrapped);
             _descriptionSize = ::Vector2 {
-                width,
-                textSize.y + padding * 2.0f,
+                node::style::width,
+                textSize.y + node::style::padding * 3.0f,
             };
         }
     }
@@ -83,21 +83,46 @@ auto node::update(void) noexcept -> void {
 }
 
 auto node::render(void) const noexcept -> void {
-    auto recPos = _pos;
+    const auto& env = enviroment::get_instance();
+    const auto& camera = env.camera();
+    const auto screenPos = ::GetWorldToScreen2D(_pos, camera);
 
-    { // draw title
-        ::DrawRectangleV(recPos, _titleSize, ::ColorAlpha(::BLUE, 0.2));
-        ::DrawRectangleLines(recPos.x, recPos.y, _titleSize.x, _titleSize.y,
-                ::BLACK);
-
-        recPos.y += _titleSize.y;
+    // title background
+    ::BeginScissorMode(screenPos.x, screenPos.y, _titleSize.x * camera.zoom,
+            _titleSize.y * camera.zoom);
+    {
+        ::DrawRectangleRounded({
+                    _pos.x,
+                    _pos.y,
+                    _titleSize.x,
+                    _titleSize.y + _descriptionSize.y,
+                }, node::style::borderRoundness, node::style::borderSegments,
+                node::style::highligthColor);
     }
+    ::EndScissorMode();
 
-    { // draw description
-        ::DrawRectangleV(recPos, _descriptionSize, ::ColorAlpha(::LIGHTGRAY, 0.2));
-        ::DrawRectangleLines(recPos.x, recPos.y, _descriptionSize.x,
-                _descriptionSize.y, ::BLACK);
-    }
+    // description background
+    ::DrawRectangleV({
+                _pos.x,
+                _pos.y + _titleSize.y,
+            }, _descriptionSize, node::style::backgroundColor);
+
+    // horizontal separator
+    ::DrawLineEx({
+                _pos.x,
+                _pos.y + _titleSize.y,
+            }, {
+                _pos.x + _titleSize.x,
+                _pos.y + _titleSize.y
+            }, node::style::borderThickness, node::style::borderColor);
+
+    ::DrawRectangleRoundedLinesEx({
+                _pos.x,
+                _pos.y,
+                _titleSize.x,
+                _titleSize.y + _descriptionSize.y,
+            }, node::style::borderRoundness, node::style::borderSegments,
+            node::style::borderThickness, node::style::borderColor);
 }
 
 auto node::render_text(void) const noexcept -> void {
@@ -105,14 +130,16 @@ auto node::render_text(void) const noexcept -> void {
     const auto& camera = env.camera();
 
     ::Vector2 textPos {
-        _pos.x + padding,
-        _pos.y + padding,
+        _pos.x + node::style::padding,
+        _pos.y + node::style::padding,
     };
 
-    gui::draw_text(_title.wrapped, ::GetWorldToScreen2D(textPos, camera));
+    gui::draw_text(_title.wrapped, ::GetWorldToScreen2D(textPos, camera),
+            node::style::textColor);
 
     const auto titleSize = gui::measure_text(_title.wrapped);
-    textPos.y += titleSize.y + padding * 2.0f;
+    textPos.y += titleSize.y + node::style::padding * 2.0f;
 
-    gui::draw_text(_description.wrapped, ::GetWorldToScreen2D(textPos, camera));
+    gui::draw_text(_description.wrapped, ::GetWorldToScreen2D(textPos, camera),
+            node::style::textColor);
 }

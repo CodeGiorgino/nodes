@@ -66,13 +66,33 @@ class node final {
         auto render_text(void) const noexcept -> void;
 
     public:
-        static inline constexpr float connectionGap { 20 };
-        static inline constexpr float connectionThickness { 2 };
-        static inline constexpr ::Color connectionColor { ::BLACK };
+        static struct style {
+            static inline constexpr float width { 500 };
+            static inline constexpr float padding { 10 };
+
+            static inline constexpr float borderRoundness { 0.2f };
+            static inline constexpr int borderSegments { 50 };
+            static inline constexpr float borderThickness { 2 };
+
+            static inline constexpr float connectionGap { 20 };
+            static inline constexpr float connectionThickness { 2 };
+
+#ifdef DARK_THEME
+            static inline constexpr ::Color backgroundColor { 20, 20, 20, 150 };
+            static inline constexpr ::Color highligthColor { 102, 155, 188, 150 };
+            static inline constexpr ::Color borderColor { ::RAYWHITE };
+            static inline constexpr ::Color textColor { ::RAYWHITE };
+            static inline constexpr ::Color connectionColor { ::RAYWHITE };
+#else
+            static inline constexpr ::Color backgroundColor { 255, 255, 255, 150 };
+            static inline constexpr ::Color highligthColor { 162, 210, 255, 150 };
+            static inline constexpr ::Color borderColor { ::BLACK };
+            static inline constexpr ::Color textColor { ::BLACK };
+            static inline constexpr ::Color connectionColor { ::BLACK };
+#endif
+        } style;
 
     private:
-        static inline constexpr float width { 500 };
-        static inline constexpr float padding { 10 };
 
         struct node_text {
             std::string text {};
