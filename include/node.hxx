@@ -55,12 +55,14 @@ class node final : public widget::base {
             [[nodiscard]] auto&& position(this Self&& self) noexcept;
         template<class Self>
             [[nodiscard]] auto&& connections(this Self&& self) noexcept;
+        template<class Self>
+            [[nodiscard]] auto&& focus(this Self&& self) noexcept;
 
         auto title_size(void) const noexcept -> ::Vector2;
         auto description_size(void) const noexcept -> ::Vector2;
         auto size(void) const noexcept -> ::Vector2;
 
-        using base::check_collision;
+        auto check_collision(void) const noexcept -> bool override;
 
         template<class Self>
             auto&& on_render(this Self&& self, std::function<void(const base&)> event) = delete;
@@ -73,28 +75,30 @@ class node final : public widget::base {
 
     public:
         static struct style {
-            static inline constexpr float width   { 500 };
             static inline constexpr float padding { 10 };
+            static inline constexpr float width   { 500 };
 
             static inline constexpr float borderRoundness { 0.2f };
-            static inline constexpr int   borderSegments  { 50 };
             static inline constexpr float borderThickness { 2 };
+            static inline constexpr int   borderSegments  { 50 };
 
             static inline constexpr float connectionGap       { 20 };
             static inline constexpr float connectionThickness { 2 };
 
 #ifdef DARK_THEME
-            static inline constexpr ::Color backgroundColor { 20, 20, 20, 150 };
-            static inline constexpr ::Color highligthColor  { 102, 155, 188, 150 };
-            static inline constexpr ::Color borderColor     { ::RAYWHITE };
-            static inline constexpr ::Color textColor       { ::RAYWHITE };
-            static inline constexpr ::Color connectionColor { ::RAYWHITE };
+            static inline constexpr ::Color backgroundColor  { 20, 20, 20, 150 };
+            static inline constexpr ::Color borderColor      { ::RAYWHITE };
+            static inline constexpr ::Color borderColorFocus { ::BLUE };
+            static inline constexpr ::Color connectionColor  { ::RAYWHITE };
+            static inline constexpr ::Color highligthColor   { 102, 155, 188, 150 };
+            static inline constexpr ::Color textColor        { ::RAYWHITE };
 #else
-            static inline constexpr ::Color backgroundColor { 255, 255, 255, 150 };
-            static inline constexpr ::Color highligthColor  { 162, 210, 255, 150 };
-            static inline constexpr ::Color borderColor     { ::BLACK };
-            static inline constexpr ::Color textColor       { ::BLACK };
-            static inline constexpr ::Color connectionColor { ::BLACK };
+            static inline constexpr ::Color backgroundColor  { 255, 255, 255, 150 };
+            static inline constexpr ::Color borderColor      { ::BLACK };
+            static inline constexpr ::Color borderColorFocus { ::DARKBLUE };
+            static inline constexpr ::Color connectionColor  { ::BLACK };
+            static inline constexpr ::Color highligthColor   { 162, 210, 255, 150 };
+            static inline constexpr ::Color textColor        { ::BLACK };
 #endif
         } style;
 
@@ -116,6 +120,8 @@ class node final : public widget::base {
         ::Vector2 _pos {};
 
         std::vector<std::string> _connections {};
+
+        bool _focus { false };
 };
 
 template<class Self>
@@ -136,4 +142,9 @@ auto&& node::position(this Self&& self) noexcept {
 template<class Self>
 auto&& node::connections(this Self&& self) noexcept {
     return std::forward_like<Self>(self._connections);
+}
+
+template<class Self>
+auto&& node::focus(this Self&& self) noexcept {
+    return std::forward_like<Self>(self._focus);
 }

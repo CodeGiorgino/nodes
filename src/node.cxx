@@ -56,6 +56,11 @@ node::node(std::string_view uuid, std::string_view title,
                 textSize.y + node::style::padding * 3.0f,
             };
         }
+
+        _size = {
+            _titleSize.x,
+            _titleSize.y + _descriptionSize.y,
+        };
     }
 
 auto node::uuid(void) const noexcept -> std::string {
@@ -71,10 +76,22 @@ auto node::description_size(void) const noexcept -> ::Vector2 {
 }
 
 auto node::size(void) const noexcept -> ::Vector2 {
-    return {
-        _titleSize.x,
-        _titleSize.y + _descriptionSize.y
-    };
+    return _size;
+}
+
+auto node::check_collision(void) const noexcept -> bool {
+    const auto& env = enviroment::get_instance();
+    const auto& camera = env.camera();
+
+    const auto mouseWorldPosition =
+        ::GetScreenToWorld2D(::GetMousePosition(), camera);
+
+    return ::CheckCollisionPointRec(mouseWorldPosition, {
+                _pos.x,
+                _pos.y,
+                _size.x,
+                _size.y,
+            });
 }
 
 auto node::update(void) -> void {
@@ -115,7 +132,17 @@ auto node::render(void) const -> void {
                 _pos.y + _titleSize.y
             }, node::style::borderThickness, node::style::borderColor);
 
-    ::DrawRectangleRoundedLinesEx({
+    // border
+    if (_focus)
+        ::DrawRectangleRoundedLinesEx({
+                    _pos.x,
+                    _pos.y,
+                    _titleSize.x,
+                    _titleSize.y + _descriptionSize.y,
+                }, node::style::borderRoundness, node::style::borderSegments,
+                node::style::borderThickness * 2.0f,
+                node::style::borderColorFocus);
+    else ::DrawRectangleRoundedLinesEx({
                 _pos.x,
                 _pos.y,
                 _titleSize.x,
