@@ -60,6 +60,13 @@ class node final : public widget::base {
         auto description_size(void) const noexcept -> ::Vector2;
         auto size(void) const noexcept -> ::Vector2;
 
+        using base::check_collision;
+
+        template<class Self>
+            auto&& on_render(this Self&& self, std::function<void(const base&)> event) = delete;
+        template<class Self>
+            auto&& on_update(this Self&& self, std::function<void(base&)> event) = delete;
+
         auto update(void) -> void override;
         auto render(void) const -> void override;
         auto render_text(void) const -> void;
