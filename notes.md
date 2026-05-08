@@ -26,7 +26,7 @@
 
 ### Rendering
 
-- [ ] Implement label
+- [x] Implement label
 - [ ] Implement button
 - [ ] Implement textbox
 
