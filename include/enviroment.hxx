@@ -43,7 +43,8 @@ class enviroment final {
         auto deinit(void) noexcept -> void;
 
         template<class Self>
-            [[nodiscard]] auto& camera(this Self&& self) noexcept;
+            [[nodiscard]] auto&& camera(this Self&& self) noexcept;
+
         auto load_font(unsigned fontSize = fontSizeDefault) -> void;
         [[nodiscard]] auto font(void) const -> std::pair<::Font, unsigned>;
         [[nodiscard]] auto font_default(void) const -> std::pair<::Font, unsigned>;
@@ -67,6 +68,6 @@ class enviroment final {
 };
 
 template<class Self>
-auto& enviroment::camera(this Self&& self) noexcept {
-    return std::forward_like<Self>(self._camera);
+auto&& enviroment::camera(this Self&& self) noexcept {
+    return std::forward<Self>(self)._camera;
 }

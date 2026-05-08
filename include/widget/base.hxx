@@ -25,9 +25,9 @@ namespace widget {
             virtual auto check_collision(void) const noexcept -> bool;
 
             template<class Self>
-                auto on_render(this Self&& self, std::function<void(const base&)> event);
+                auto&& on_render(this Self&& self, std::function<void(const base&)> event);
             template<class Self>
-                auto on_update(this Self&& self, std::function<void(base&)> event);
+                auto&& on_update(this Self&& self, std::function<void(base&)> event);
 
             virtual auto render(void) const -> void;
             virtual auto update(void) -> void;
@@ -41,14 +41,14 @@ namespace widget {
     };
 
     template<class Self>
-        auto base::on_render(this Self&& self,
+        auto&& base::on_render(this Self&& self,
                 std::function<void(const base&)> event) {
             self._renderCallback = event;
             return std::forward<Self>(self);
         }
 
     template<class Self>
-        auto base::on_update(this Self&& self,
+        auto&& base::on_update(this Self&& self,
                 std::function<void(base&)> event) {
             self._updateCallback = event;
             return std::forward<Self>(self);
