@@ -81,7 +81,7 @@ auto scene::render_grid(void) const noexcept -> void {
 }
 
 auto scene::render_nodes(void) const -> void {
-    for (const auto& node : _nodes) {
+    for (const const_node_ptr node : _nodes) {
         // iterate connections
         for (size_t indexFrom = 0; indexFrom < node->connections().size();
                 indexFrom++) {
@@ -157,7 +157,7 @@ auto scene::render(void) const -> void {
     }
     ::EndMode2D();
 
-    for (const auto& node : _nodes) {
+    for (const const_node_ptr node : _nodes) {
         node->render_text();
     }
 }
