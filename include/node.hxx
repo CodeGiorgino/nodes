@@ -5,11 +5,13 @@
 #include <vector>
 
 #include "raylib.h"
+#include "widget/base.hxx"
 
 class node;
 using node_ptr = std::shared_ptr<node>;
+using const_node_ptr = std::shared_ptr<const node>;
 
-class node final {
+class node final : public widget::base {
     public:
         class node_error final : public std::exception {
             public:
@@ -32,7 +34,7 @@ class node final {
 
     public:
         node(void) noexcept;
-        node(std::string_view uuid, std::string_view title, std::string_view description, ::Vector2 pos);
+        node(std::string_view uuid, std::string_view title, std::string_view description, ::Vector2 position);
 
         node(const node&) = delete;
         auto operator =(const node&) = delete;
@@ -46,24 +48,21 @@ class node final {
         [[nodiscard]] auto uuid(void) const noexcept -> std::string;
 
         template<class Self>
-            [[nodiscard]] auto& title(this Self&& self) noexcept;
-
+            [[nodiscard]] auto&& title(this Self&& self) noexcept;
         template<class Self>
-            [[nodiscard]] auto& description(this Self&& self) noexcept;
+            [[nodiscard]] auto&& description(this Self&& self) noexcept;
+        template<class Self>
+            [[nodiscard]] auto&& position(this Self&& self) noexcept;
+        template<class Self>
+            [[nodiscard]] auto&& connections(this Self&& self) noexcept;
 
         auto title_size(void) const noexcept -> ::Vector2;
         auto description_size(void) const noexcept -> ::Vector2;
         auto size(void) const noexcept -> ::Vector2;
 
-        template<class Self>
-            [[nodiscard]] auto& position(this Self&& self) noexcept;
-
-        template<class Self>
-            [[nodiscard]] auto& connections(this Self&& self) noexcept;
-
-        auto update(void) noexcept -> void;
-        auto render(void) const noexcept -> void;
-        auto render_text(void) const noexcept -> void;
+        auto update(void) -> void override;
+        auto render(void) const -> void override;
+        auto render_text(void) const -> void;
 
     public:
         static struct style {
@@ -93,7 +92,6 @@ class node final {
         } style;
 
     private:
-
         struct node_text {
             std::string text {};
             std::string wrapped {};
@@ -114,21 +112,21 @@ class node final {
 };
 
 template<class Self>
-auto& node::title(this Self&& self) noexcept {
+auto&& node::title(this Self&& self) noexcept {
     return std::forward_like<Self>(self._title);
 }
 
 template<class Self>
-auto& node::description(this Self&& self) noexcept {
+auto&& node::description(this Self&& self) noexcept {
     return std::forward_like<Self>(self._description);
 }
 
 template<class Self>
-auto& node::position(this Self&& self) noexcept {
+auto&& node::position(this Self&& self) noexcept {
     return std::forward_like<Self>(self._pos);
 }
 
 template<class Self>
-auto& node::connections(this Self&& self) noexcept {
+auto&& node::connections(this Self&& self) noexcept {
     return std::forward_like<Self>(self._connections);
 }
