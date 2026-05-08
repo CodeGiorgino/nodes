@@ -81,6 +81,9 @@ auto scene::render_grid(void) const noexcept -> void {
 }
 
 auto scene::render_nodes(void) const -> void {
+    const auto& env = enviroment::get_instance();
+    const auto& camera = env.camera();
+
     for (const const_node_ptr node : _nodes) {
         // iterate connections
         for (size_t indexFrom = 0; indexFrom < node->connections().size();
@@ -141,6 +144,12 @@ auto scene::render_nodes(void) const -> void {
         }
 
         node->render();
+
+        ::EndMode2D();
+        {
+            node->render_text();
+        }
+        ::BeginMode2D(camera);
     }
 }
 
@@ -156,10 +165,6 @@ auto scene::render(void) const -> void {
         render_nodes();
     }
     ::EndMode2D();
-
-    for (const const_node_ptr node : _nodes) {
-        node->render_text();
-    }
 }
 
 auto scene::update(void) -> void {
