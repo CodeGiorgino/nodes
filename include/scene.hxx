@@ -66,4 +66,6 @@ class scene final {
 
         std::vector<node_ptr> _nodes {};
         std::unordered_map<std::string, std::vector<node_ptr>> _nodeMap {};
+
+        node_ptr _focusedNode { nullptr };
 };

@@ -171,8 +171,17 @@ auto scene::update(void) -> void {
     auto& env = enviroment::get_instance();
     auto& camera = env.camera();
 
+    // update the focused node
+    if (::IsMouseButtonPressed(::MOUSE_BUTTON_LEFT)
+            && _focusedNode
+            && !_focusedNode->check_collision()) {
+        _focusedNode->focus() = false;
+        _focusedNode = nullptr;
+    }
+
     // update the camera position
-    if (::IsMouseButtonDown(::MOUSE_BUTTON_LEFT)) {
+    if (::IsMouseButtonDown(::MOUSE_BUTTON_LEFT)
+            && !_focusedNode) {
         const auto delta = ::Vector2Scale(::GetMouseDelta(),
                 -1.0f / camera.zoom);
         camera.target = ::Vector2Add(camera.target, delta);
@@ -183,6 +192,7 @@ auto scene::update(void) -> void {
     if (wheel != 0) {
         const auto mouseWorldPosition =
             ::GetScreenToWorld2D(::GetMousePosition(), camera);
+
         camera.offset = ::GetMousePosition();
         camera.target = mouseWorldPosition;
 
@@ -195,5 +205,11 @@ auto scene::update(void) -> void {
 
     for (const auto& node : _nodes) {
         node->update();
+
+        if (::IsMouseButtonPressed(::MOUSE_BUTTON_LEFT)
+                && node->check_collision()) {
+            _focusedNode = node;
+            _focusedNode->focus() = true;
+        }
     }
 }
