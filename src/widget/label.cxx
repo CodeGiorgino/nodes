@@ -24,6 +24,5 @@ namespace widget {
 
     auto label::update(void) -> void {
         base::update();
-        // TODO: implement label::update()
     }
 } // namespace widget

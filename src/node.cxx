@@ -13,14 +13,13 @@ auto node::node_error::what(void) const noexcept -> const char* {
     return _message.c_str();
 }
 
-node::node(void)
-    noexcept : _uuid(uuid::generate_v4()) {
-        // empty
-    }
+node::node(void) noexcept :
+    _uuid(uuid::generate_v4()) {}
 
 node::node(std::string_view uuid, std::string_view title,
-        std::string_view description, ::Vector2 pos)
-    : _uuid(uuid), _pos(std::move(pos)) {
+        std::string_view description, ::Vector2 position) :
+    _uuid(uuid),
+    _pos(std::move(position)) {
         if (uuid.empty())
             throw node::node_error(
                     "Cannot set the uuid to be empty.");
@@ -78,11 +77,11 @@ auto node::size(void) const noexcept -> ::Vector2 {
     };
 }
 
-auto node::update(void) noexcept -> void {
+auto node::update(void) -> void {
     // TODO: update node
 }
 
-auto node::render(void) const noexcept -> void {
+auto node::render(void) const -> void {
     const auto& env = enviroment::get_instance();
     const auto& camera = env.camera();
     const auto screenPos = ::GetWorldToScreen2D(_pos, camera);
@@ -125,7 +124,7 @@ auto node::render(void) const noexcept -> void {
             node::style::borderThickness, node::style::borderColor);
 }
 
-auto node::render_text(void) const noexcept -> void {
+auto node::render_text(void) const -> void {
     const auto& env = enviroment::get_instance();
     const auto& camera = env.camera();
 
