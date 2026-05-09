@@ -4,7 +4,7 @@
 namespace widget {
     label::label(::Rectangle rec, std::string_view text, label::options opts)
         noexcept :
-        base(std::forward<::Rectangle>(rec)),
+        widget::base<label>(std::forward<::Rectangle>(rec)),
         _opts(std::move(opts)) {
             _text = text;
             if (opts.fitSize) {
@@ -19,7 +19,7 @@ namespace widget {
 
     auto label::render(void) const -> void {
         base::render();
-        gui::draw_text(_text, _pos, label::style::textColor, _opts.textScaled);
+        gui::draw_text(_text, _pos, label::style::textColor, _opts.scaled);
     }
 
     auto label::update(void) -> void {

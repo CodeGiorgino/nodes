@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "node.hxx"
+#include "widget/base.hxx"
 
 class scene final {
     public:
@@ -58,14 +59,15 @@ class scene final {
         auto update(void) -> void;
 
     private:
-        auto render_grid(void) const noexcept -> void;
+        auto render_grid(void) const -> void;
         auto render_nodes(void) const -> void;
+        auto render_widgets(void) const -> void;
 
     private:
         std::filesystem::path _configFilePath {};
 
-        std::vector<node_ptr> _nodes {};
-        std::unordered_map<std::string, std::vector<node_ptr>> _nodeMap {};
+        std::vector<node::shared_ptr> _nodes {};
+        std::unordered_map<std::string, std::vector<node::shared_ptr>> _nodeMap {};
 
-        node_ptr _focusedNode { nullptr };
+        node::shared_ptr _focusedNode { nullptr };
 };

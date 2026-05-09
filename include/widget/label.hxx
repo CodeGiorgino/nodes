@@ -4,17 +4,16 @@
 #include "widget/base.hxx"
 
 namespace widget {
-    class label final : public widget::base {
+    class label final : public base<label> {
         public:
             struct options {
-                bool fitSize    { false };
-                bool textScaled { false };
-                bool textWrap   { false };
+                bool fitSize  { false };
+                bool scaled   { false };
+                bool textWrap { false };
             };
 
         public:
             using base::base;
-
             label(::Rectangle rec, std::string_view text, label::options opts) noexcept;
 
             label(const label&) noexcept = default;
@@ -26,8 +25,6 @@ namespace widget {
             ~label(void) noexcept;
 
         public:
-            using base::check_collision;
-
             auto render(void) const -> void override;
             auto update(void) -> void override;
 
@@ -42,6 +39,6 @@ namespace widget {
 
         private:
             std::string _text {};
-            options _opts {};
+            label::options _opts {};
     };
 } // namespace widget

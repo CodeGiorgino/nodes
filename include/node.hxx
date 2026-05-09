@@ -6,12 +6,9 @@
 
 #include "raylib.h"
 #include "widget/base.hxx"
+#include "widget/context_menu.hxx"
 
-class node;
-using node_ptr = std::shared_ptr<node>;
-using const_node_ptr = std::shared_ptr<const node>;
-
-class node final : public widget::base {
+class node final : public widget::base<node> {
     public:
         class node_error final : public std::exception {
             public:
@@ -63,6 +60,8 @@ class node final : public widget::base {
         auto size(void) const noexcept -> ::Vector2;
 
         auto check_collision(void) const noexcept -> bool override;
+
+        auto open_menu(void) noexcept -> void;
 
         template<class Self>
             auto&& on_render(this Self&& self, std::function<void(const base&)> event) = delete;
@@ -124,6 +123,7 @@ class node final : public widget::base {
         std::vector<std::string> _connections {};
 
         bool _focus { false };
+        widget::context_menu _menu {};
 };
 
 template<class Self>

@@ -21,7 +21,7 @@ auto lexer::lexer_error::what(void) const noexcept -> const char* {
 lexer::lexer(fs::path filePath)
     : _filePath(std::move(filePath)) {}
 
-auto lexer::lexer::nodes(void) const -> std::generator<node_ptr> {
+auto lexer::lexer::nodes(void) const -> std::generator<node::shared_ptr> {
     tokenizer t { _filePath };
     auto gen = t.tokens();
     auto it = gen.begin();

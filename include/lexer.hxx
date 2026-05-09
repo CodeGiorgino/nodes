@@ -39,7 +39,7 @@ class lexer final {
         ~lexer(void) noexcept = default;
 
     public:
-        auto nodes(void) const -> std::generator<node_ptr>;
+        auto nodes(void) const -> std::generator<node::shared_ptr>;
 
     private:
         std::filesystem::path _filePath {};
