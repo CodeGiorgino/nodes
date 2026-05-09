@@ -67,17 +67,21 @@ auto scene::render_grid(void) const noexcept -> void {
             std::ceil(bottomRight.y / env.gridSize) * env.gridSize,
     };
 
-    for (float y : views::iota(0)
-            | views::take((int)((gridEnd.y - gridStart.y) / env.gridSize) + 1)) {
-        const auto yPos = gridStart.y + (y * env.gridSize);
-        ::DrawLine(gridStart.x, yPos, gridEnd.x, yPos, scene::style::gridColor);
-    }
+    ::BeginMode2D(camera);
+    {
+        for (float y : views::iota(0)
+                | views::take((int)((gridEnd.y - gridStart.y) / env.gridSize) + 1)) {
+            const auto yPos = gridStart.y + (y * env.gridSize);
+            ::DrawLine(gridStart.x, yPos, gridEnd.x, yPos, scene::style::gridColor);
+        }
 
-    for (float x : views::iota(0)
-            | views::take((int)((gridEnd.x - gridStart.x) / env.gridSize) + 1)) {
-        const auto xPos = gridStart.x + (x * env.gridSize);
-        ::DrawLine(xPos, gridStart.y, xPos, gridEnd.y, scene::style::gridColor);
+        for (float x : views::iota(0)
+                | views::take((int)((gridEnd.x - gridStart.x) / env.gridSize) + 1)) {
+            const auto xPos = gridStart.x + (x * env.gridSize);
+            ::DrawLine(xPos, gridStart.y, xPos, gridEnd.y, scene::style::gridColor);
+        }
     }
+    ::EndMode2D();
 }
 
 auto scene::render_nodes(void) const -> void {
@@ -85,86 +89,78 @@ auto scene::render_nodes(void) const -> void {
     const auto& camera = env.camera();
 
     for (const const_node_ptr node : _nodes) {
-        // iterate connections
-        for (size_t indexFrom = 0; indexFrom < node->connections().size();
-                indexFrom++) {
-            const auto& connectedNodeUuid =
-                node->connections()[indexFrom];
-            const auto& connectedNode =
-                [&](void) -> node_ptr {
-                    for (const auto& n : _nodes)
-                        if (n->uuid() == connectedNodeUuid)
-                            return n;
+        ::BeginMode2D(camera);
+        {
+            // iterate connections
+            for (size_t indexFrom = 0; indexFrom < node->connections().size();
+                    indexFrom++) {
+                const auto& connectedNodeUuid =
+                    node->connections()[indexFrom];
+                const auto& connectedNode =
+                    [&](void) -> node_ptr {
+                        for (const auto& n : _nodes)
+                            if (n->uuid() == connectedNodeUuid)
+                                return n;
+                        throw std::runtime_error(
+                                std::format(
+                                    "-- Configuration error - Cannot find node {:?} connected to {:?}",
+                                    connectedNodeUuid, node->uuid()));
+                    }();
+
+                // find connections definition to the connected node
+                const auto it = _nodeMap.find(connectedNodeUuid);
+                if (it == _nodeMap.end())
+                    // unreachable: node map creation error
                     throw std::runtime_error(
                             std::format(
-                                "-- Configuration error - Cannot find node {:?} connected to {:?}",
-                                connectedNodeUuid, node->uuid()));
-                }();
+                                "-- Node map error - Missing connection definitions in node map: {:?}",
+                                connectedNodeUuid));
 
-            // find connections definition to the connected node
-            const auto it = _nodeMap.find(connectedNodeUuid);
-            if (it == _nodeMap.end())
-                // unreachable: node map creation error
-                throw std::runtime_error(
-                        std::format(
-                            "-- Node map error - Missing connection definitions in node map: {:?}",
-                            connectedNodeUuid));
+                // find the node index in the connected node connections
+                const auto indexTo =
+                    [&](void) -> size_t {
+                        for (size_t i = 0; it->second.size(); i++)
+                            if (it->second[i]->uuid() == node->uuid())
+                                return i;
+                        throw std::runtime_error(
+                                std::format(
+                                    "-- Node map error - Missing connection definition from node {:?} to node {:?}",
+                                    node->uuid(), connectedNodeUuid));
+                    }();
 
-            // find the node index in the connected node connections
-            const auto indexTo =
-                [&](void) -> size_t {
-                    for (size_t i = 0; it->second.size(); i++)
-                        if (it->second[i]->uuid() == node->uuid())
-                            return i;
-                    throw std::runtime_error(
-                            std::format(
-                                "-- Node map error - Missing connection definition from node {:?} to node {:?}",
-                                node->uuid(), connectedNodeUuid));
-                }();
+                // draw the connection based on the formula:
+                // y = nodeHeight / 2.0f + gap (connectionIndex - 1)
 
-            // draw the connection based on the formula:
-            // y = nodeHeight / 2.0f + gap (connectionIndex - 1)
-
-            const ::Vector2 startPos {
-                node->position().x + node->size().x,
+                const ::Vector2 startPos {
+                    node->position().x + node->size().x,
                     node->position().y
                         + node->size().y * 0.5f
                         + node::style::connectionGap * ((int)indexFrom - 1),
-            };
+                };
 
-            const ::Vector2 endPos {
-                connectedNode->position().x,
+                const ::Vector2 endPos {
+                    connectedNode->position().x,
                     connectedNode->position().y
                         + connectedNode->size().y * 0.5f
                         + node::style::connectionGap * ((int)indexTo - 1),
-            };
+                };
 
-            ::DrawLineBezier(startPos, endPos, node::style::connectionThickness,
-                    node::style::connectionColor);
+                ::DrawLineBezier(startPos, endPos, node::style::connectionThickness,
+                        node::style::connectionColor);
+            }
         }
-
-        node->render();
-
         ::EndMode2D();
-        {
-            node->render_text();
-        }
-        ::BeginMode2D(camera);
     }
+
+    for (const const_node_ptr node : _nodes)
+        node->render();
 }
 
 auto scene::render(void) const -> void {
-    const auto& env = enviroment::get_instance();
-    const auto& camera = env.camera();
-
     ::ClearBackground(scene::style::backgroundColor);
 
-    ::BeginMode2D(camera);
-    {
-        render_grid();
-        render_nodes();
-    }
-    ::EndMode2D();
+    render_grid();
+    render_nodes();
 }
 
 auto scene::update(void) -> void {
@@ -180,11 +176,14 @@ auto scene::update(void) -> void {
     }
 
     // update the camera position
-    if (::IsMouseButtonDown(::MOUSE_BUTTON_LEFT)
-            && !_focusedNode) {
+    if (::IsMouseButtonDown(::MOUSE_BUTTON_LEFT)) {
         const auto delta = ::Vector2Scale(::GetMouseDelta(),
                 -1.0f / camera.zoom);
-        camera.target = ::Vector2Add(camera.target, delta);
+
+        if (_focusedNode)
+            _focusedNode->position() = ::Vector2Add(_focusedNode->position(),
+                    ::Vector2Multiply(delta, { -1, -1 }));
+        else camera.target = ::Vector2Add(camera.target, delta);
     }
 
     // update the camera zoom
