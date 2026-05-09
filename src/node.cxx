@@ -1,9 +1,13 @@
+#include <chrono>
+
 #include "enviroment.hxx"
 #include "gui.hxx"
 #include "node.hxx"
 #include "raylib.h"
 #include "raymath.h"
 #include "uuid.hxx"
+
+namespace chrono = std::chrono;
 
 node::node_error::node_error(std::string_view message) noexcept {
     _message += message;
@@ -94,8 +98,37 @@ auto node::check_collision(void) const noexcept -> bool {
             });
 }
 
+auto node::open_menu(void) noexcept -> void {
+    const auto mousePos = ::GetMousePosition();
+    _menu = widget::context_menu {
+        {
+            mousePos.x,
+            mousePos.y,
+            0, 0,
+        },
+        {
+            {
+                "Update title",
+                [](void) -> void { return; },
+            },
+            {
+                "Update description",
+                [](void) -> void { return; },
+            },
+        },
+        widget::context_menu::options { .fitSize = true, },
+    };
+
+    _menu.open() = true;
+    _menu.animation_start() = chrono::steady_clock::now();
+}
+
+auto node::close_menu(void) noexcept -> void {
+    _menu.open() = false;
+}
+
 auto node::update(void) -> void {
-    // TODO: update node
+    _menu.update();
 }
 
 auto node::render(void) const -> void {
@@ -155,6 +188,7 @@ auto node::render(void) const -> void {
     ::EndMode2D();
 
     render_text();
+    _menu.render();
 }
 
 auto node::render_text(void) const -> void {

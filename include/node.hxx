@@ -62,6 +62,7 @@ class node final : public widget::base<node> {
         auto check_collision(void) const noexcept -> bool override;
 
         auto open_menu(void) noexcept -> void;
+        auto close_menu(void) noexcept -> void;
 
         template<class Self>
             auto&& on_render(this Self&& self, std::function<void(const base&)> event) = delete;
