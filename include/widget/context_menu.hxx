@@ -33,6 +33,8 @@ namespace widget {
         public:
             template<class Self>
                 auto&& open(this Self&& self) noexcept;
+            template<class Self>
+                auto&& animation_start(this Self&& self) noexcept;
 
             auto render(void) const -> void override;
             auto update(void) -> void override;
@@ -42,19 +44,18 @@ namespace widget {
                 static inline constexpr float padding { 10 };
 
                 static inline constexpr float borderRoundness { 0.1f };
-                static inline constexpr float borderThickness { 2 };
                 static inline constexpr int   borderSegments  { 50 };
 
-                static inline constexpr std::chrono::seconds animationDuration { 1 };
+                static inline constexpr std::chrono::milliseconds animationDuration { 150 };
 
 #ifdef DARK_THEME
-                static inline constexpr ::Color backgroundColor  { 20, 20, 20, 150 };
-                static inline constexpr ::Color highligthColor   { 102, 155, 188, 150 };
-                static inline constexpr ::Color textColor        { ::RAYWHITE };
+                static inline constexpr ::Color backgroundColor { ::BLACK };
+                static inline constexpr ::Color highligthColor  { 102, 155, 188, 150 };
+                static inline constexpr ::Color textColor       { ::RAYWHITE };
 #else
-                static inline constexpr ::Color backgroundColor  { 255, 255, 255, 150 };
-                static inline constexpr ::Color highligthColor   { 162, 210, 255, 150 };
-                static inline constexpr ::Color textColor        { ::BLACK };
+                static inline constexpr ::Color backgroundColor { ::RAYWHITE };
+                static inline constexpr ::Color highligthColor  { 162, 210, 255, 150 };
+                static inline constexpr ::Color textColor       { ::BLACK };
 #endif
             } style;
 
@@ -69,5 +70,10 @@ namespace widget {
     template<class Self>
         auto&& context_menu::open(this Self&& self) noexcept {
             return std::forward_like<Self>(self._open);
+        }
+
+    template<class Self>
+        auto&& context_menu::animation_start(this Self&& self) noexcept {
+            return std::forward_like<Self>(self._animationStart);
         }
 } // namespace widget
