@@ -108,11 +108,11 @@ auto node::open_menu(void) noexcept -> void {
         },
         {
             {
-                "Update title",
+                "Add connection",
                 [](void) -> void { return; },
             },
             {
-                "Update description",
+                "Delete node",
                 [](void) -> void { return; },
             },
         },

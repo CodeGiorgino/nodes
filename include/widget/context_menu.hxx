@@ -43,18 +43,19 @@ namespace widget {
             static struct style {
                 static inline constexpr float padding { 10 };
 
-                static inline constexpr float borderRoundness { 0.1f };
-                static inline constexpr int   borderSegments  { 50 };
+                static inline constexpr float borderThickness { 1 };
 
                 static inline constexpr std::chrono::milliseconds animationDuration { 150 };
 
 #ifdef DARK_THEME
                 static inline constexpr ::Color backgroundColor { ::BLACK };
-                static inline constexpr ::Color highligthColor  { 102, 155, 188, 150 };
+                static inline constexpr ::Color borderColor     { ::RAYWHITE };
+                static inline constexpr ::Color highligthColor  { 255, 255, 255, 25 };
                 static inline constexpr ::Color textColor       { ::RAYWHITE };
 #else
                 static inline constexpr ::Color backgroundColor { ::RAYWHITE };
-                static inline constexpr ::Color highligthColor  { 162, 210, 255, 150 };
+                static inline constexpr ::Color borderColor     { ::BLACK };
+                static inline constexpr ::Color highligthColor  { 0, 0, 0, 25 };
                 static inline constexpr ::Color textColor       { ::BLACK };
 #endif
             } style;

@@ -12,19 +12,26 @@ namespace widget {
             context_menu::options opts) noexcept :
         base<context_menu>(std::forward<::Rectangle>(rec)),
         _opts(std::move(opts)) {
+            // set initial size
             if (_opts.fitSize)
-                _size = {};
+                _size = { 0, context_menu::style::padding * 2.0f };
 
+            // calculate size based on items
             for (const auto& [text, e] : items) {
                 _items.emplace_back(text, e);
                 if (_opts.fitSize) {
                     const auto textSize = ::Vector2AddValue(
                             gui::measure_text(text),
                             context_menu::style::padding);
-                    _size.x = std::max(_size.x, textSize.x);
+                    _size.x = std::max(_size.x, textSize.x
+                            + context_menu::style::padding * 2.0f);
                     _size.y += textSize.y;
                 }
             }
+
+            // inline end padding
+            if (_opts.fitSize)
+                _size.x += 50;
         }
 
     auto context_menu::render(void) const -> void {
@@ -39,14 +46,42 @@ namespace widget {
 
         ::BeginScissorMode(_pos.x, _pos.y, _size.x, _size.y * animationStep);
         {
-            ::DrawRectangleRounded({
+            ::DrawRectangleRec({
                         _pos.x,
                         _pos.y,
                         _size.x,
                         _size.y,
-                    }, context_menu::style::borderRoundness,
-                    context_menu::style::borderSegments,
-                    context_menu::style::backgroundColor);
+                    }, context_menu::style::backgroundColor);
+            ::DrawRectangleLinesEx({
+                        _pos.x,
+                        _pos.y,
+                        _size.x,
+                        _size.y,
+                    }, context_menu::style::borderThickness,
+                    context_menu::style::borderColor);
+
+            // draw items
+            float yRelative = _pos.y;
+            for (const auto& [text, _] : _items) {
+                const auto textSize = gui::measure_text(text);
+                const ::Rectangle rec {
+                    _pos.x,
+                    yRelative,
+                    _size.x,
+                    textSize.y + context_menu::style::padding * 2.0f,
+                };
+
+                // draw highlight
+                if (::CheckCollisionPointRec(::GetMousePosition(), rec))
+                    ::DrawRectangleRec(rec,
+                            context_menu::style::highligthColor);
+
+                gui::draw_text(text, {
+                            _pos.x + context_menu::style::padding,
+                            yRelative + context_menu::style::padding,
+                        }, context_menu::style::textColor, false);
+                yRelative += textSize.y + context_menu::style::padding * 2.0f;
+            }
         }
         ::EndScissorMode();
     }
