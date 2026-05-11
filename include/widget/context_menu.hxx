@@ -9,7 +9,7 @@
 #include "widget/base.hxx"
 
 namespace widget {
-    class context_menu final : base<context_menu> {
+    class context_menu final : public base<context_menu> {
         public:
             struct options {
                 bool fitSize { false };
@@ -19,8 +19,7 @@ namespace widget {
             using item = std::pair<std::string, on_click>;
 
         public:
-            using base::base;
-            context_menu(::Rectangle rec, std::initializer_list<context_menu::item> items, context_menu::options opts) noexcept;
+            static auto create(::Rectangle rec, std::initializer_list<context_menu::item> items, context_menu::options opts) noexcept -> shared_ptr;
 
             context_menu(const context_menu&) noexcept = default;
             auto operator =(const context_menu&) noexcept -> context_menu& = default;
@@ -61,6 +60,10 @@ namespace widget {
                 static inline constexpr ::Color textColor       { ::BLACK };
 #endif
             } style;
+
+        private:
+            context_menu(void) = delete;
+            context_menu(::Rectangle rec, std::initializer_list<context_menu::item> items, context_menu::options opts) noexcept;
 
         private:
             context_menu::options _opts;

@@ -17,9 +17,6 @@ auto node::node_error::what(void) const noexcept -> const char* {
     return _message.c_str();
 }
 
-node::node(void) noexcept :
-    _uuid(uuid::generate_v4()) {}
-
 node::node(std::string_view uuid, std::string_view title,
         std::string_view description, ::Vector2 position) :
     _uuid(uuid),
@@ -66,6 +63,16 @@ node::node(std::string_view uuid, std::string_view title,
             _titleSize.y + _descriptionSize.y,
         };
     }
+
+auto node::create(std::string_view uuid, std::string_view title,
+        std::string_view description, ::Vector2 position) -> shared_ptr {
+    return std::make_shared<node>(node {
+                std::forward<std::string_view>(uuid),
+                std::forward<std::string_view>(title),
+                std::forward<std::string_view>(description),
+                std::forward<::Vector2>(position),
+            });
+}
 
 auto node::uuid(void) const noexcept -> std::string {
     return _uuid;

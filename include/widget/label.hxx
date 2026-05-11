@@ -13,8 +13,7 @@ namespace widget {
             };
 
         public:
-            using base::base;
-            label(::Rectangle rec, std::string_view text, label::options opts) noexcept;
+            static auto create(::Rectangle rec, std::string_view text, label::options opts) noexcept -> shared_ptr;
 
             label(const label&) noexcept = default;
             auto operator =(const label&) noexcept -> label& = default;
@@ -22,11 +21,11 @@ namespace widget {
             label(label&&) noexcept = default;
             auto operator =(label&&) noexcept -> label& = default;
 
-            ~label(void) noexcept;
+            ~label(void) noexcept = default;
 
         public:
             auto render(void) const -> void override;
-            auto update(void) -> void override;
+            auto update(void) -> void override {}
 
         public:
             static struct style {
@@ -36,6 +35,10 @@ namespace widget {
                 static inline constexpr ::Color textColor { ::BLACK };
 #endif
             } style;
+
+        private:
+            label(void) = delete;
+            label(::Rectangle rec, std::string_view text, label::options opts) noexcept;
 
         private:
             std::string _text {};

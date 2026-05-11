@@ -15,14 +15,16 @@ namespace widget {
             }
         }
 
-    label::~label(void) noexcept {}
-
-    auto label::render(void) const -> void {
-        base::render();
-        gui::draw_text(_text, _pos, label::style::textColor, _opts.scaled);
+    auto label::create(::Rectangle rec, std::string_view text,
+            label::options opts) noexcept -> shared_ptr {
+        return std::make_shared<label>(label {
+                    std::forward<::Rectangle>(rec),
+                    std::forward<std::string_view>(text),
+                    std::forward<label::options>(opts),
+                });
     }
 
-    auto label::update(void) -> void {
-        base::update();
+    auto label::render(void) const -> void {
+        gui::draw_text(_text, _pos, label::style::textColor, _opts.scaled);
     }
 } // namespace widget

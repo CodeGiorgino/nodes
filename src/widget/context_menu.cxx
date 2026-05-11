@@ -34,6 +34,16 @@ namespace widget {
                 _size.x += 50;
         }
 
+    auto context_menu::create(::Rectangle rec,
+            std::initializer_list<context_menu::item> items,
+            context_menu::options opts) noexcept -> shared_ptr {
+        return std::make_shared<context_menu>(context_menu {
+                    std::forward<::Rectangle>(rec),
+                    std::forward<std::initializer_list<context_menu::item>>(items),
+                    std::forward<context_menu::options>(opts),
+                });
+    }
+
     auto context_menu::check_collision(void) const noexcept -> bool {
         return _open ? base::check_collision() : false;
     }

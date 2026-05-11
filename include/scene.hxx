@@ -6,6 +6,7 @@
 
 #include "node.hxx"
 #include "widget/base.hxx"
+#include "widget/context_menu.hxx"
 
 class scene final {
     public:
@@ -70,4 +71,5 @@ class scene final {
         std::unordered_map<std::string, std::vector<node::shared_ptr>> _nodeMap {};
 
         node::shared_ptr _focusedNode { nullptr };
+        widget::context_menu::shared_ptr _menu { nullptr };
 };

@@ -6,7 +6,6 @@
 
 #include "raylib.h"
 #include "widget/base.hxx"
-#include "widget/context_menu.hxx"
 
 class node final : public widget::base<node> {
     public:
@@ -30,18 +29,17 @@ class node final : public widget::base<node> {
         };
 
     public:
-        node(void) noexcept;
-        node(std::string_view uuid, std::string_view title, std::string_view description, ::Vector2 position);
+        node(const node&) noexcept = default;
+        auto operator =(const node&) noexcept -> node& = default;
 
-        node(const node&) = delete;
-        auto operator =(const node&) = delete;
-
-        node(node&&) = delete;
-        auto operator =(node&&) = delete;
+        node(node&&) noexcept = default;
+        auto operator =(node&&) noexcept -> node& = default;
 
         ~node(void) noexcept = default;
 
     public:
+        static auto create(std::string_view uuid, std::string_view title, std::string_view description, ::Vector2 position) -> shared_ptr;
+
         [[nodiscard]] auto uuid(void) const noexcept -> std::string;
 
         template<class Self>
@@ -60,14 +58,6 @@ class node final : public widget::base<node> {
         auto size(void) const noexcept -> ::Vector2;
 
         auto check_collision(void) const noexcept -> bool override;
-
-        auto open_menu(void) noexcept -> void;
-        auto close_menu(void) noexcept -> void;
-
-        template<class Self>
-            auto&& on_render(this Self&& self, std::function<void(const base&)> event) = delete;
-        template<class Self>
-            auto&& on_update(this Self&& self, std::function<void(base&)> event) = delete;
 
         auto update(void) -> void override;
         auto render(void) const -> void override;
@@ -108,6 +98,9 @@ class node final : public widget::base<node> {
         };
 
     private:
+        node(void) = delete;
+        node(std::string_view uuid, std::string_view title, std::string_view description, ::Vector2 position);
+
         auto render_text(void) const -> void;
 
     private:
@@ -124,7 +117,6 @@ class node final : public widget::base<node> {
         std::vector<std::string> _connections {};
 
         bool _focus { false };
-        widget::context_menu _menu {};
 };
 
 template<class Self>

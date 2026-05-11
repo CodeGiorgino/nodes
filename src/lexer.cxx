@@ -194,7 +194,7 @@ auto lexer::lexer::nodes(void) const -> std::generator<node::shared_ptr> {
             std::stof(std::string { pos[1] }),
         };
 
-        auto retNode = std::make_shared<node>(retBuffer.uuid, retBuffer.title,
+        auto retNode = node::create(retBuffer.uuid, retBuffer.title,
                 retBuffer.description, retBuffer.pos);
 
         if (check_token_text("connections")) {
