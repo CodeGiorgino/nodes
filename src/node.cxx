@@ -94,10 +94,10 @@ auto node::check_collision(void) const noexcept -> bool {
     const auto& env = enviroment::get_instance();
     const auto& camera = env.camera();
 
-    const auto mouseWorldPosition =
+    const auto mouseWorldPos =
         ::GetScreenToWorld2D(::GetMousePosition(), camera);
 
-    return ::CheckCollisionPointRec(mouseWorldPosition, {
+    return ::CheckCollisionPointRec(mouseWorldPos, {
                 _pos.x,
                 _pos.y,
                 _size.x,
@@ -105,37 +105,8 @@ auto node::check_collision(void) const noexcept -> bool {
             });
 }
 
-auto node::open_menu(void) noexcept -> void {
-    const auto mousePos = ::GetMousePosition();
-    _menu = widget::context_menu {
-        {
-            mousePos.x,
-            mousePos.y,
-            0, 0,
-        },
-        {
-            {
-                "Add connection",
-                [](void) -> void { return; },
-            },
-            {
-                "Delete node",
-                [](void) -> void { return; },
-            },
-        },
-        widget::context_menu::options { .fitSize = true, },
-    };
-
-    _menu.open() = true;
-    _menu.animation_start() = chrono::steady_clock::now();
-}
-
-auto node::close_menu(void) noexcept -> void {
-    _menu.open() = false;
-}
-
 auto node::update(void) -> void {
-    _menu.update();
+    // TODO: update node
 }
 
 auto node::render(void) const -> void {
@@ -195,7 +166,6 @@ auto node::render(void) const -> void {
     ::EndMode2D();
 
     render_text();
-    _menu.render();
 }
 
 auto node::render_text(void) const -> void {
