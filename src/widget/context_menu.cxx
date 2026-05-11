@@ -101,6 +101,24 @@ namespace widget {
     }
 
     auto context_menu::update(void) -> void {
-        // TODO: implement context_menu::update()
+        if (!_open
+                || !check_collision()
+                || !::IsMouseButtonPressed(::MOUSE_BUTTON_LEFT))
+            return;
+
+        float yRelative = _pos.y;
+        for (const auto& [text, event] : _items) {
+            const auto textSize = gui::measure_text(text);
+            const ::Rectangle rec {
+                _pos.x,
+                yRelative,
+                _size.x,
+                textSize.y + context_menu::style::padding * 2.0f,
+            };
+
+            if (::CheckCollisionPointRec(::GetMousePosition(), rec))
+                event();
+            yRelative += textSize.y + context_menu::style::padding * 2.0f;
+        }
     }
 } // namespace widget
