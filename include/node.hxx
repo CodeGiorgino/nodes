@@ -50,8 +50,6 @@ class node final : public widget::base<node> {
             [[nodiscard]] auto&& position(this Self&& self) noexcept;
         template<class Self>
             [[nodiscard]] auto&& connections(this Self&& self) noexcept;
-        template<class Self>
-            [[nodiscard]] auto&& focus(this Self&& self) noexcept;
 
         auto title_size(void) const noexcept -> ::Vector2;
         auto description_size(void) const noexcept -> ::Vector2;
@@ -75,18 +73,18 @@ class node final : public widget::base<node> {
             static inline constexpr float connectionThickness { 2 };
 
 #ifdef DARK_THEME
-            static inline constexpr ::Color backgroundColor  { 20, 20, 20, 150 };
+            static inline constexpr ::Color backgroundColor  { 20, 20, 20, 200 };
             static inline constexpr ::Color borderColor      { ::RAYWHITE };
             static inline constexpr ::Color borderColorFocus { ::BLUE };
             static inline constexpr ::Color connectionColor  { ::RAYWHITE };
-            static inline constexpr ::Color highligthColor   { 102, 155, 188, 150 };
+            static inline constexpr ::Color highligthColor   { 102, 155, 188, 200 };
             static inline constexpr ::Color textColor        { ::RAYWHITE };
 #else
-            static inline constexpr ::Color backgroundColor  { 255, 255, 255, 150 };
+            static inline constexpr ::Color backgroundColor  { 255, 255, 255, 200 };
             static inline constexpr ::Color borderColor      { ::BLACK };
             static inline constexpr ::Color borderColorFocus { ::DARKBLUE };
             static inline constexpr ::Color connectionColor  { ::BLACK };
-            static inline constexpr ::Color highligthColor   { 162, 210, 255, 150 };
+            static inline constexpr ::Color highligthColor   { 162, 210, 255, 200 };
             static inline constexpr ::Color textColor        { ::BLACK };
 #endif
         } style;
@@ -115,8 +113,6 @@ class node final : public widget::base<node> {
         ::Vector2 _pos {};
 
         std::vector<std::string> _connections {};
-
-        bool _focus { false };
 };
 
 template<class Self>
@@ -137,9 +133,4 @@ auto&& node::position(this Self&& self) noexcept {
 template<class Self>
 auto&& node::connections(this Self&& self) noexcept {
     return std::forward_like<Self>(self._connections);
-}
-
-template<class Self>
-auto&& node::focus(this Self&& self) noexcept {
-    return std::forward_like<Self>(self._focus);
 }

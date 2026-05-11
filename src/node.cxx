@@ -146,22 +146,13 @@ auto node::render(void) const -> void {
                 }, node::style::borderThickness, node::style::borderColor);
 
         // border
-        if (_focus)
-            ::DrawRectangleRoundedLinesEx({
-                        _pos.x,
-                        _pos.y,
-                        _titleSize.x,
-                        _titleSize.y + _descriptionSize.y,
-                    }, node::style::borderRoundness, node::style::borderSegments,
-                    node::style::borderThickness * 2.0f,
-                    node::style::borderColorFocus);
-        else ::DrawRectangleRoundedLinesEx({
-                    _pos.x,
-                    _pos.y,
-                    _titleSize.x,
-                    _titleSize.y + _descriptionSize.y,
-                }, node::style::borderRoundness, node::style::borderSegments,
-                node::style::borderThickness, node::style::borderColor);
+        ::DrawRectangleRoundedLinesEx({
+                _pos.x,
+                _pos.y,
+                _titleSize.x,
+                _titleSize.y + _descriptionSize.y,
+            }, node::style::borderRoundness, node::style::borderSegments,
+            node::style::borderThickness, node::style::borderColor);
     }
     ::EndMode2D();
 

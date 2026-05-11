@@ -163,6 +163,26 @@ auto scene::render(void) const -> void {
 
     render_grid();
     render_nodes();
+
+    auto& env = enviroment::get_instance();
+    auto& camera = env.camera();
+
+    if (_focusedNode) {
+        const auto pos = ::GetWorldToScreen2D(_focusedNode->position(), camera);
+        const auto titleSize =
+            ::Vector2Scale(_focusedNode->title_size(), camera.zoom);
+        const auto descriptionSize =
+            ::Vector2Scale(_focusedNode->description_size(), camera.zoom);
+
+        ::DrawRectangleRoundedLinesEx({
+                    pos.x,
+                    pos.y,
+                    titleSize.x,
+                    titleSize.y + descriptionSize.y,
+                }, node::style::borderRoundness, node::style::borderSegments,
+                node::style::borderThickness * 2.0f,
+                node::style::borderColorFocus);
+    }
 }
 
 auto scene::update(void) -> void {
@@ -204,11 +224,9 @@ auto scene::update(void) -> void {
             if (node == _focusedNode
                     && !node->check_collision()) {
                 // TODO: close menu
-                node->focus() = false;
                 _focusedNode = nullptr;
             } else if (node != _focusedNode
                     && node->check_collision()) {
-                node->focus() = true;
                 _focusedNode = node;
             }
         } else if (::IsMouseButtonPressed(::MOUSE_BUTTON_RIGHT)
