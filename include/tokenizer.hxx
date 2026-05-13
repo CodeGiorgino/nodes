@@ -7,9 +7,9 @@
 #include "parser.hxx"
 
 class tokenizer final {
-    public:
+    public: // definitions
         class tokenizer_error final : public std::exception {
-            public:
+            public: // ctors
                 tokenizer_error(std::string_view message = "Unknown error.") noexcept;
 
                 tokenizer_error(const tokenizer_error&) noexcept = default;
@@ -20,10 +20,10 @@ class tokenizer final {
 
                 ~tokenizer_error(void) noexcept = default;
 
-            public:
+            public: // methods
                 auto what(void) const noexcept -> const char* override;
 
-            private:
+            private: // members
                 std::string _message { "-- Tokenizer error - " };
         };
 
@@ -51,7 +51,7 @@ class tokenizer final {
             auto text(void) const noexcept -> std::string;
         };
 
-    public:
+    public: // ctors
         tokenizer(void) = delete;
         tokenizer(std::filesystem::path filePath);
 
@@ -63,11 +63,12 @@ class tokenizer final {
 
         ~tokenizer(void) = default;
 
-    public:
+    public: // methods
         auto tokens(void) const -> std::generator<token>;
+
         static auto token_type_name(token_t type) -> std::string_view;
 
-    private:
+    private: // members
         std::filesystem::path _filePath {};
 };
 

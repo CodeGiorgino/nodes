@@ -7,9 +7,9 @@
 #include "raylib.h"
 
 class enviroment final {
-    public:
+    public: // definitions
         class enviroment_error final : public std::exception {
-            public:
+            public: // ctors
                 enviroment_error(std::string_view message = "Unknown error.") noexcept;
 
                 enviroment_error(const enviroment_error&) noexcept = default;
@@ -20,14 +20,17 @@ class enviroment final {
 
                 ~enviroment_error(void) noexcept = default;
 
-            public:
+            public: // methods
                 auto what(void) const noexcept -> const char* override;
 
-            private:
+            private: // members
                 std::string _message { "-- Enviroment error - " };
         };
 
-    public:
+        static inline constexpr int gridSize { 50 };
+        static inline constexpr int fontSizeDefault { 20 };
+
+    public: // ctors
         enviroment(const enviroment&) = delete;
         auto operator =(const enviroment&) = delete;
 
@@ -36,7 +39,7 @@ class enviroment final {
 
         ~enviroment(void) noexcept = default;
 
-    public:
+    public: // methods
         static auto get_instance(void) noexcept -> enviroment&;
 
         auto init(std::string_view program, std::filesystem::path configFilePath) -> void;
@@ -49,14 +52,10 @@ class enviroment final {
         [[nodiscard]] auto font(void) const -> std::pair<::Font, unsigned>;
         [[nodiscard]] auto font_default(void) const -> std::pair<::Font, unsigned>;
 
-    private:
+    private: // ctors
         enviroment(void) = default;
 
-    public:
-        static inline constexpr int gridSize { 50 };
-        static inline constexpr int fontSizeDefault { 20 };
-
-    private:
+    private: // members
         std::filesystem::path _program {};
         std::filesystem::path _configFilePath {};
 

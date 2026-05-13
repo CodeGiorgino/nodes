@@ -7,14 +7,14 @@
 namespace widget {
     template<class Derived = void>
         class base : public std::enable_shared_from_this<Derived> {
-            public:
+            public: // definitions
                 using base_ptr = std::shared_ptr<base>;
                 using const_base_ptr = std::shared_ptr<const base>;
 
                 using shared_ptr = std::shared_ptr<Derived>;
                 using const_shared_ptr = std::shared_ptr<const Derived>;
 
-            public:
+            public: // ctors
                 base(::Rectangle rec) noexcept {
                     _pos = { rec.x, rec.y };
                     _size = { rec.width, rec.height };
@@ -28,7 +28,7 @@ namespace widget {
 
                 virtual ~base(void) noexcept {}
 
-            public:
+            public: // methods
                 static auto create(void) noexcept -> shared_ptr {
                     return std::make_shared<Derived>();
                 }
@@ -53,14 +53,11 @@ namespace widget {
                 virtual auto render(void) const -> void = 0;
                 virtual auto update(void) -> void = 0;
 
-            protected:
+            protected: // ctors
                 base(void) = default;
 
-            protected:
+            protected: // members
                 ::Vector2 _pos {};
                 ::Vector2 _size {};
-
-                std::function<void(const const_shared_ptr)> _renderCallback {};
-                std::function<void(const shared_ptr)> _updateCallback {};
         };
 } // namespace widget

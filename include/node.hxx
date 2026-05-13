@@ -8,9 +8,9 @@
 #include "widget/base.hxx"
 
 class node final : public widget::base<node> {
-    public:
+    public: // definitions
         class node_error final : public std::exception {
-            public:
+            public: // ctors
                 node_error(std::string_view message = "Unknown error.") noexcept;
 
                 node_error(const node_error&) noexcept = default;
@@ -21,46 +21,13 @@ class node final : public widget::base<node> {
 
                 ~node_error(void) noexcept = default;
 
-            public:
+            public: // methods
                 auto what(void) const noexcept -> const char* override;
 
-            private:
+            private: // members
                 std::string _message { "-- Node error - " };
         };
 
-    public:
-        node(const node&) noexcept = default;
-        auto operator =(const node&) noexcept -> node& = default;
-
-        node(node&&) noexcept = default;
-        auto operator =(node&&) noexcept -> node& = default;
-
-        ~node(void) noexcept = default;
-
-    public:
-        static auto create(std::string_view uuid, std::string_view title, std::string_view description, ::Vector2 position) -> shared_ptr;
-
-        [[nodiscard]] auto uuid(void) const noexcept -> std::string;
-
-        template<class Self>
-            [[nodiscard]] auto&& title(this Self&& self) noexcept;
-        template<class Self>
-            [[nodiscard]] auto&& description(this Self&& self) noexcept;
-        template<class Self>
-            [[nodiscard]] auto&& position(this Self&& self) noexcept;
-        template<class Self>
-            [[nodiscard]] auto&& connections(this Self&& self) noexcept;
-
-        auto title_size(void) const noexcept -> ::Vector2;
-        auto description_size(void) const noexcept -> ::Vector2;
-        auto size(void) const noexcept -> ::Vector2;
-
-        auto check_collision(void) const noexcept -> bool override;
-
-        auto update(void) -> void override;
-        auto render(void) const -> void override;
-
-    public:
         static struct style {
             static inline constexpr float padding { 10 };
             static inline constexpr float width   { 500 };
@@ -89,19 +56,52 @@ class node final : public widget::base<node> {
 #endif
         } style;
 
-    private:
+    public: // ctors
+        node(const node&) noexcept = default;
+        auto operator =(const node&) noexcept -> node& = default;
+
+        node(node&&) noexcept = default;
+        auto operator =(node&&) noexcept -> node& = default;
+
+        ~node(void) noexcept = default;
+
+    public: // methods
+        static auto create(std::string_view uuid, std::string_view title, std::string_view description, ::Vector2 position) -> shared_ptr;
+
+        [[nodiscard]] auto uuid(void) const noexcept -> std::string;
+
+        template<class Self>
+            [[nodiscard]] auto&& title(this Self&& self) noexcept;
+        template<class Self>
+            [[nodiscard]] auto&& description(this Self&& self) noexcept;
+        template<class Self>
+            [[nodiscard]] auto&& position(this Self&& self) noexcept;
+        template<class Self>
+            [[nodiscard]] auto&& connections(this Self&& self) noexcept;
+
+        auto title_size(void) const noexcept -> ::Vector2;
+        auto description_size(void) const noexcept -> ::Vector2;
+        auto size(void) const noexcept -> ::Vector2;
+
+        auto check_collision(void) const noexcept -> bool override;
+
+        auto update(void) -> void override;
+        auto render(void) const -> void override;
+
+    private: // definitions
         struct node_text {
             std::string text {};
             std::string wrapped {};
         };
 
-    private:
+    private: // ctors
         node(void) = delete;
         node(std::string_view uuid, std::string_view title, std::string_view description, ::Vector2 position);
 
+    private: // methods
         auto render_text(void) const -> void;
 
-    private:
+    private: // members
         std::string _uuid {};
 
         node_text _title {};

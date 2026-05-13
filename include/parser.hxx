@@ -6,9 +6,9 @@
 #include "node.hxx"
 
 class parser final {
-    public:
+    public: // definitions
         class parser_error final : public std::exception {
-            public:
+            public: // ctors
                 parser_error(std::string_view message = "Unknown error.") noexcept;
 
                 parser_error(const parser_error&) noexcept = default;
@@ -19,10 +19,10 @@ class parser final {
 
                 ~parser_error(void) noexcept = default;
 
-            public:
+            public: // methods
                 auto what(void) const noexcept -> const char* override;
 
-            private:
+            private: //members
                 std::string _message { "-- Parser error - " };
         };
 
@@ -33,7 +33,7 @@ class parser final {
             std::string text {};
         };
 
-    public:
+    public: // ctors
         parser(void) = delete;
         parser(std::filesystem::path filePath);
 
@@ -45,9 +45,9 @@ class parser final {
 
         ~parser(void) noexcept = default;
 
-    public:
+    public: // methods
         auto strings(void) const -> std::generator<string>;
 
-    private:
+    private: // members
         std::filesystem::path _filePath {};
 };

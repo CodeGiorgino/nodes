@@ -41,8 +41,6 @@ auto main(int argc, char** argv) -> int {
 
     scene s { configFilePath };
 
-    // TODO: handle error propagation
-    // TODO: snackbar implementation
     while (!::WindowShouldClose()) {
         ::BeginDrawing();
         {

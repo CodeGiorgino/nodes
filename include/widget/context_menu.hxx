@@ -10,7 +10,7 @@
 
 namespace widget {
     class context_menu final : public base<context_menu> {
-        public:
+        public: // definitions
             struct options {
                 bool fitSize { false };
             };
@@ -18,29 +18,6 @@ namespace widget {
             using on_click = std::function<void(void)>;
             using item = std::pair<std::string, on_click>;
 
-        public:
-            static auto create(::Rectangle rec, std::initializer_list<context_menu::item> items, context_menu::options opts) noexcept -> shared_ptr;
-
-            context_menu(const context_menu&) noexcept = default;
-            auto operator =(const context_menu&) noexcept -> context_menu& = default;
-
-            context_menu(context_menu&&) noexcept = default;
-            auto operator =(context_menu&&) noexcept -> context_menu& = default;
-
-            ~context_menu(void) noexcept = default;
-
-        public:
-            auto check_collision(void) const noexcept -> bool override;
-
-            template<class Self>
-                auto&& open(this Self&& self) noexcept;
-            template<class Self>
-                auto&& animation_start(this Self&& self) noexcept;
-
-            auto render(void) const -> void override;
-            auto update(void) -> void override;
-
-        public:
             static struct style {
                 static inline constexpr float padding { 10 };
 
@@ -61,11 +38,33 @@ namespace widget {
 #endif
             } style;
 
-        private:
+        public: // ctors
+            context_menu(const context_menu&) noexcept = default;
+            auto operator =(const context_menu&) noexcept -> context_menu& = default;
+
+            context_menu(context_menu&&) noexcept = default;
+            auto operator =(context_menu&&) noexcept -> context_menu& = default;
+
+            ~context_menu(void) noexcept = default;
+
+        public: // methods
+            static auto create(::Rectangle rec, std::initializer_list<context_menu::item> items, context_menu::options opts) noexcept -> shared_ptr;
+
+            auto check_collision(void) const noexcept -> bool override;
+
+            template<class Self>
+                auto&& open(this Self&& self) noexcept;
+            template<class Self>
+                auto&& animation_start(this Self&& self) noexcept;
+
+            auto render(void) const -> void override;
+            auto update(void) -> void override;
+
+        private: // ctors
             context_menu(void) = delete;
             context_menu(::Rectangle rec, std::initializer_list<context_menu::item> items, context_menu::options opts) noexcept;
 
-        private:
+        private: // members
             context_menu::options _opts;
             std::vector<context_menu::item> _items {};
 

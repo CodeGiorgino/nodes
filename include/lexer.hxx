@@ -6,9 +6,9 @@
 #include "node.hxx"
 
 class lexer final {
-    public:
+    public: // definitions
         class lexer_error final : public std::exception {
-            public:
+            public: // ctors
                 lexer_error(std::string_view message = "Unknown error.") noexcept;
 
                 lexer_error(const lexer_error&) noexcept = default;
@@ -19,14 +19,14 @@ class lexer final {
 
                 ~lexer_error(void) = default;
 
-            public:
+            public: // methods
                 auto what(void) const noexcept -> const char* override;
 
-            private:
+            private: // members
                 std::string _message { "-- Lexer error - " };
         };
 
-    public:
+    public: // ctors
         lexer(void) = delete;
         lexer(std::filesystem::path filePath);
 
@@ -38,9 +38,9 @@ class lexer final {
 
         ~lexer(void) noexcept = default;
 
-    public:
+    public: // methods
         auto nodes(void) const -> std::generator<node::shared_ptr>;
 
-    private:
+    private: // members
         std::filesystem::path _filePath {};
 };

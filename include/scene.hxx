@@ -9,9 +9,9 @@
 #include "widget/context_menu.hxx"
 
 class scene final {
-    public:
+    public: // definitions
         class scene_error final : public std::exception {
-            public:
+            public: // ctors
                 scene_error(std::string_view message = "Unknown error.") noexcept;
 
                 scene_error(const scene_error&) noexcept = default;
@@ -22,14 +22,24 @@ class scene final {
 
                 ~scene_error(void) noexcept = default;
 
-            public:
+            public: // methods
                 auto what(void) const noexcept -> const char* override;
 
-            private:
+            private: // members
                 std::string _message { "-- Scene error - " };
         };
 
-    public:
+        static struct style {
+#ifdef DARK_THEME
+            static inline constexpr ::Color backgroundColor { ::BLACK };
+            static inline constexpr ::Color gridColor       { ::LIGHTGRAY };
+#else
+            static inline constexpr ::Color backgroundColor { ::RAYWHITE };
+            static inline constexpr ::Color gridColor       { ::LIGHTGRAY };
+#endif
+        } style;
+
+    public: // ctors
         scene(void) noexcept = default;
         scene(std::filesystem::path configFilePath);
 
@@ -41,30 +51,19 @@ class scene final {
 
         ~scene(void) noexcept = default;
 
-    public:
-        static struct style {
-#ifdef DARK_THEME
-            static inline constexpr ::Color backgroundColor { ::BLACK };
-            static inline constexpr ::Color gridColor       { ::LIGHTGRAY };
-#else
-            static inline constexpr ::Color backgroundColor { ::RAYWHITE };
-            static inline constexpr ::Color gridColor       { ::LIGHTGRAY };
-#endif
-        } style;
-
-    public:
+    public: // methods
         auto load(void) -> void;
         auto load(std::filesystem::path configFilePath) -> void;
 
         auto render(void) const -> void;
         auto update(void) -> void;
 
-    private:
+    private: // methods
         auto render_grid(void) const -> void;
         auto render_nodes(void) const -> void;
         auto render_widgets(void) const -> void;
 
-    private:
+    private: // members
         std::filesystem::path _configFilePath {};
 
         std::vector<node::shared_ptr> _nodes {};
