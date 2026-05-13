@@ -1,3 +1,4 @@
+#include <chrono>
 #include <cmath>
 #include <ranges>
 
@@ -163,6 +164,10 @@ auto scene::render(void) const -> void {
     ::ClearBackground(scene::style::backgroundColor);
 
     render_grid();
+
+    if (_renderCallback)
+        _renderCallback(*this);
+
     render_nodes();
 
     auto& env = enviroment::get_instance();
@@ -184,6 +189,9 @@ auto scene::render(void) const -> void {
                 node::style::borderThickness * 2.0f,
                 node::style::borderColorFocus);
     }
+
+    if (_menu)
+        _menu->render();
 }
 
 auto scene::update(void) -> void {
@@ -196,7 +204,11 @@ auto scene::update(void) -> void {
                 -1.0f / camera.zoom);
 
         if (_focusedNode) {
-            // TODO: close menu
+            if (_menu) {
+                _menu->open() = false;
+                _renderCallback = {};
+            }
+
             _focusedNode->position() = ::Vector2Add(_focusedNode->position(),
                     ::Vector2Multiply(delta, { -1, -1 }));
         } else camera.target = ::Vector2Add(camera.target, delta);
@@ -224,7 +236,11 @@ auto scene::update(void) -> void {
         if (::IsMouseButtonPressed(::MOUSE_BUTTON_LEFT)) {
             if (node == _focusedNode
                     && !node->check_collision()) {
-                // TODO: close menu
+                if (_menu) {
+                    _menu->open() = false;
+                    _renderCallback = {};
+                }
+
                 _focusedNode = nullptr;
             } else if (node != _focusedNode
                     && node->check_collision()) {
@@ -233,7 +249,37 @@ auto scene::update(void) -> void {
         } else if (::IsMouseButtonPressed(::MOUSE_BUTTON_RIGHT)
                 && node == _focusedNode
                 && node->check_collision()) {
-            // TODO: open menu
+            const auto mousePos = ::GetMousePosition();
+            _menu = widget::context_menu::create({
+                        mousePos.x,
+                        mousePos.y,
+                        0, 0,
+                    }, {
+                        { "Add connection",
+                            [&](void) -> void {
+                                this->_renderCallback = 
+                                    [](const scene& s) -> void {
+                                        const ::Vector2 startPos {
+                                            s._focusedNode->position().x
+                                                + s._focusedNode->size().x,
+                                            s._focusedNode->position().y
+                                                + s._focusedNode->size().y * 0.5f
+                                                + node::style::connectionGap
+                                                * ((int)s._focusedNode->connections().size() - 1),
+                                        };
+
+                                        ::DrawLineBezier(startPos,
+                                                ::GetMousePosition(),
+                                                node::style::connectionThickness,
+                                                node::style::connectionColor);
+                                    };
+                            },
+                        },
+                        // TODO: implement node delete
+                        { "Delete", [](void) -> void {} },
+                    }, widget::context_menu::options { .fitSize = true });
+            _menu->open() = true;
+            _menu->animation_start() = chrono::steady_clock::now();
         }
 
         node->update();

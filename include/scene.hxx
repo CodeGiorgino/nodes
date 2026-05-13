@@ -71,4 +71,6 @@ class scene final {
 
         node::shared_ptr _focusedNode { nullptr };
         widget::context_menu::shared_ptr _menu { nullptr };
+
+        std::function<void(const scene&)> _renderCallback {};
 };
