@@ -200,23 +200,21 @@ auto scene::update(void) -> void {
 
     // update the camera position
     if (::IsMouseButtonDown(::MOUSE_BUTTON_LEFT)) {
-        const auto delta = ::Vector2Scale(::GetMouseDelta(),
-                -1.0f / camera.zoom);
-
-        if (_focusedNode) {
-            if (_menu) {
-                _menu->open() = false;
-                _renderCallback = {};
-            }
-
-            _focusedNode->position() = ::Vector2Add(_focusedNode->position(),
-                    ::Vector2Multiply(delta, { -1, -1 }));
-        } else camera.target = ::Vector2Add(camera.target, delta);
+        if (!_focusedNode) {
+            const auto delta = ::Vector2Scale(::GetMouseDelta(),
+                    -1.0f / camera.zoom);
+            camera.target = ::Vector2Add(camera.target, delta);
+        } else if (_menu
+                && !_menu->check_collision()) {
+            _focusedNode = nullptr;
+            _menu->open() = false;
+            _renderCallback = {};
+        }
     }
 
     // update the camera zoom
-    const auto wheel = ::GetMouseWheelMove();
-    if (wheel != 0) {
+    if (const auto wheel = ::GetMouseWheelMove();
+            wheel != 0) {
         const auto mouseWorldPosition =
             ::GetScreenToWorld2D(::GetMousePosition(), camera);
 
@@ -234,17 +232,32 @@ auto scene::update(void) -> void {
     for (const auto& node : _nodes) {
         // check if node is out of focus
         if (::IsMouseButtonPressed(::MOUSE_BUTTON_LEFT)) {
-            if (node == _focusedNode
+             if (node != _focusedNode
+                    && node->check_collision()) {
+                _focusedNode = node;
+                if (_menu && !_menu->check_collision()) {
+                    _menu->open() = false;
+                    _renderCallback = {};
+                }
+            } else if (node == _focusedNode
                     && !node->check_collision()) {
+                _focusedNode = nullptr;
+
                 if (_menu) {
                     _menu->open() = false;
                     _renderCallback = {};
                 }
+            }
+        } else if (::IsMouseButtonDown(::MOUSE_BUTTON_LEFT)) {
+            if (node == _focusedNode) {
+                const auto delta = ::Vector2Scale(::GetMouseDelta(),
+                        1.0f / camera.zoom);
+                node->position() = ::Vector2Add(node->position(), delta);
+            }
 
-                _focusedNode = nullptr;
-            } else if (node != _focusedNode
-                    && node->check_collision()) {
-                _focusedNode = node;
+            if (_menu) {
+                _menu->open() = false;
+                _renderCallback = {};
             }
         } else if (::IsMouseButtonPressed(::MOUSE_BUTTON_RIGHT)
                 && node == _focusedNode
@@ -280,6 +293,7 @@ auto scene::update(void) -> void {
                     }, widget::context_menu::options { .fitSize = true });
             _menu->open() = true;
             _menu->animation_start() = chrono::steady_clock::now();
+            _renderCallback = {};
         }
 
         node->update();
